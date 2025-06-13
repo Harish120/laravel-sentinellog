@@ -45,7 +45,7 @@ class LogSuccessfulLogin
 
     public function handle(Login $event): void
     {
-        if (! config('sentinel-log.enabled', true) || ! config('sentinel-log.events.login', true)) {
+        if (!config('sentinel-log.enabled', true) || !config('sentinel-log.events.login', true)) {
             return;
         }
 
@@ -65,15 +65,15 @@ class LogSuccessfulLogin
             $this->fingerprintService->isNewDevice($event->user, $hash);
 
         $log = AuthenticationLog::create([
-            'authenticatable_id' => $event->user->getKey(),
+            'authenticatable_id'   => $event->user->getKey(),
             'authenticatable_type' => get_class($event->user),
-            'session_id' => $session->session_id,
-            'event_name' => 'login',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'device_info' => $deviceInfo,
-            'location' => $this->geoService->getLocation(request()->ip()),
-            'is_successful' => true,
+            'session_id'           => $session->session_id,
+            'event_name'           => 'login',
+            'ip_address'           => request()->ip(),
+            'user_agent'           => request()->userAgent(),
+            'device_info'          => $deviceInfo,
+            'location'             => $this->geoService->getLocation(request()->ip()),
+            'is_successful'        => true,
         ]);
 
         $this->bruteForceService->checkGeoFence();
@@ -83,17 +83,17 @@ class LogSuccessfulLogin
 
         if ($user instanceof TwoFactorAuthenticatable) {
             $twoFactorEnabled = (bool) $user->getTwoFactorSecret();
-            if ($twoFactorEnabled && ! session()->has('2fa_verified')) {
+            if ($twoFactorEnabled && !session()->has('2fa_verified')) {
                 AuthenticationLog::create([
-                    'authenticatable_id' => $event->user->getKey(),
+                    'authenticatable_id'   => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),
-                    'session_id' => $session->session_id,
-                    'event_name' => '2fa_required',
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                    'device_info' => $this->fingerprintService->generate(),
-                    'location' => $this->geoService->getLocation(request()->ip()),
-                    'is_successful' => false,
+                    'session_id'           => $session->session_id,
+                    'event_name'           => '2fa_required',
+                    'ip_address'           => request()->ip(),
+                    'user_agent'           => request()->userAgent(),
+                    'device_info'          => $this->fingerprintService->generate(),
+                    'location'             => $this->geoService->getLocation(request()->ip()),
+                    'is_successful'        => false,
                 ]);
             }
         }
@@ -107,15 +107,15 @@ class LogSuccessfulLogin
             if ($hijacking) {
                 Notification::send($event->user, new SessionHijackingDetected($hijacking['session'], $hijacking['reason']));
                 AuthenticationLog::create([
-                    'authenticatable_id' => $event->user->getKey(),
+                    'authenticatable_id'   => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),
-                    'session_id' => $session->session_id,
-                    'event_name' => 'hijacking_detected',
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                    'device_info' => $this->fingerprintService->generate(),
-                    'location' => $this->geoService->getLocation(request()->ip()),
-                    'is_successful' => false,
+                    'session_id'           => $session->session_id,
+                    'event_name'           => 'hijacking_detected',
+                    'ip_address'           => request()->ip(),
+                    'user_agent'           => request()->userAgent(),
+                    'device_info'          => $this->fingerprintService->generate(),
+                    'location'             => $this->geoService->getLocation(request()->ip()),
+                    'is_successful'        => false,
                 ]);
             }
         }

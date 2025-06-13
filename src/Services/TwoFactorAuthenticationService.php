@@ -26,7 +26,7 @@ class TwoFactorAuthenticationService
         $secret = Base32::decodeUpper($secret);
         $timestamp = $timestamp ?? floor(time() / 30); // 30-second window
 
-        $binary = pack('N*', 0) . pack('N*', $timestamp);
+        $binary = pack('N*', 0).pack('N*', $timestamp);
         $hash = hash_hmac('sha1', $binary, $secret, true);
         $offset = ord($hash[19]) & 0x0F;
 
@@ -59,11 +59,11 @@ class TwoFactorAuthenticationService
     {
         $label = urlencode("{$issuer}:{$email}");
         $params = http_build_query([
-            'secret' => $secret,
-            'issuer' => $issuer,
+            'secret'    => $secret,
+            'issuer'    => $issuer,
             'algorithm' => 'SHA1',
-            'digits' => 6,
-            'period' => 30,
+            'digits'    => 6,
+            'period'    => 30,
         ]);
 
         return "otpauth://totp/{$label}?{$params}";

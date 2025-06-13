@@ -14,11 +14,11 @@ class SsoAuthenticationService
     {
         $token = Str::random(64);
         SsoToken::create([
-            'authenticatable_id' => $authenticatable->getKey(),
+            'authenticatable_id'   => $authenticatable->getKey(),
             'authenticatable_type' => get_class($authenticatable),
-            'token' => $token,
-            'client_id' => $clientId,
-            'expires_at' => now()->addHours(config('sentinel-log.sso.token_lifetime', 24)),
+            'token'                => $token,
+            'client_id'            => $clientId,
+            'expires_at'           => now()->addHours(config('sentinel-log.sso.token_lifetime', 24)),
         ]);
 
         return $token;

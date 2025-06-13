@@ -6,8 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     public function up(): void
     {
         Schema::create(config('sentinel-log.table_name', 'authentication_logs'), function (Blueprint $table) {
@@ -25,7 +24,7 @@ return new class extends Migration
             $table->timestamp('cleared_at')->nullable();
             $table->timestamps();
 
-            $table->index(['authenticatable_type', 'authenticatable_id'], config('sentinel-log.table_name', 'authentication_logs') . '_auth_type_auth_id_idx');
+            $table->index(['authenticatable_type', 'authenticatable_id'], config('sentinel-log.table_name', 'authentication_logs').'_auth_type_auth_id_idx');
             $table->index('event_name');
         });
     }

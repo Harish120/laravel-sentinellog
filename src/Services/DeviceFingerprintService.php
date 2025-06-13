@@ -28,11 +28,11 @@ class DeviceFingerprintService
         $headers = $this->request->headers->all();
 
         return [
-            'browser' => $headers['user-agent'][0] ?? null,
+            'browser'         => $headers['user-agent'][0] ?? null,
             'accept_language' => $headers['accept-language'][0] ?? null,
             'accept_encoding' => $headers['accept-encoding'][0] ?? null,
-            'platform' => $this->guessPlatform($headers['user-agent'][0] ?? ''),
-            'hash' => $this->createHash(),
+            'platform'        => $this->guessPlatform($headers['user-agent'][0] ?? ''),
+            'hash'            => $this->createHash(),
         ];
     }
 
@@ -41,15 +41,17 @@ class DeviceFingerprintService
      */
     public function isNewDevice(Authenticatable $user, string $hash): bool
     {
-        Log::info('parameters ',
+        Log::info(
+            'parameters ',
             [
-                'authenticatable_id' => $user->getKey(),
+                'authenticatable_id'   => $user->getKey(),
                 'authenticatable_type' => get_class($user),
-                'is_successful' => true,
-                'hash' => $hash,
+                'is_successful'        => true,
+                'hash'                 => $hash,
             ]
         );
-        Log::info('isNewDevice',
+        Log::info(
+            'isNewDevice',
             [AuthenticationLog::where('authenticatable_id', $user->getKey())
                 ->where('authenticatable_type', get_class($user))
                 ->where('is_successful', true)
@@ -63,7 +65,7 @@ class DeviceFingerprintService
                 ->exists(),
         ]);
 
-        return ! AuthenticationLog::where('authenticatable_id', $user->getKey())
+        return !AuthenticationLog::where('authenticatable_id', $user->getKey())
             ->where('authenticatable_type', get_class($user))
             ->where('is_successful', true)
             ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(device_info, "$.hash")) = ?', [$hash])

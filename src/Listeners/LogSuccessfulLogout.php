@@ -30,7 +30,7 @@ class LogSuccessfulLogout
 
     public function handle(Logout $event): void
     {
-        if (! config('sentinel-log.enabled', true) || ! config('sentinel-log.events.logout', true)) {
+        if (!config('sentinel-log.enabled', true) || !config('sentinel-log.events.logout', true)) {
             return;
         }
 
@@ -38,15 +38,15 @@ class LogSuccessfulLogout
         $session = $this->sessionService->track($event->user);
 
         AuthenticationLog::create([
-            'authenticatable_id' => $event->user->getKey(),
+            'authenticatable_id'   => $event->user->getKey(),
             'authenticatable_type' => get_class($event->user),
-            'session_id' => $sessionId,
-            'event_name' => 'logout',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'device_info' => $this->fingerprintService->generate(),
-            'location' => $this->geoService->getLocation(request()->ip()),
-            'is_successful' => true,
+            'session_id'           => $sessionId,
+            'event_name'           => 'logout',
+            'ip_address'           => request()->ip(),
+            'user_agent'           => request()->userAgent(),
+            'device_info'          => $this->fingerprintService->generate(),
+            'location'             => $this->geoService->getLocation(request()->ip()),
+            'is_successful'        => true,
         ]);
 
         $session->delete(); // Clean up session record on logout
