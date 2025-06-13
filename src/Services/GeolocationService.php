@@ -33,9 +33,9 @@ class GeolocationService
             } else {
                 return [
                     'country' => 'Local',
-                    'city' => 'Localhost',
-                    'lat' => 0,
-                    'lon' => 0,
+                    'city'    => 'Localhost',
+                    'lat'     => 0,
+                    'lon'     => 0,
                 ];
             }
         }
@@ -51,10 +51,10 @@ class GeolocationService
             if ($data['status'] === 'success') {
                 return [
                     'country' => $data['country'] ?? 'Unknown',
-                    'city' => $data['city'] ?? 'Unknown',
-                    'lat' => $data['lat'] ?? 0,
-                    'lon' => $data['lon'] ?? 0,
-                    'ip' => $data['query'] ?? $ip,
+                    'city'    => $data['city'] ?? 'Unknown',
+                    'lat'     => $data['lat'] ?? 0,
+                    'lon'     => $data['lon'] ?? 0,
+                    'ip'      => $data['query'] ?? $ip,
                 ];
             }
         } catch (Exception) {
@@ -63,10 +63,10 @@ class GeolocationService
 
         return [
             'country' => 'Unknown',
-            'city' => 'Unknown',
-            'lat' => 0,
-            'lon' => 0,
-            'ip' => $ip,
+            'city'    => 'Unknown',
+            'lat'     => 0,
+            'lon'     => 0,
+            'ip'      => $ip,
         ];
     }
 }

@@ -36,8 +36,8 @@ class SentinelSession extends Model
     ];
 
     protected $casts = [
-        'device_info' => 'array',
-        'location' => 'array',
+        'device_info'   => 'array',
+        'location'      => 'array',
         'last_activity' => 'datetime',
     ];
 

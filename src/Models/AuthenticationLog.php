@@ -40,11 +40,11 @@ class AuthenticationLog extends Model
     ];
 
     protected $casts = [
-        'device_info' => 'array',
-        'location' => 'array',
+        'device_info'   => 'array',
+        'location'      => 'array',
         'is_successful' => 'boolean',
-        'event_at' => 'datetime',
-        'cleared_at' => 'datetime',
+        'event_at'      => 'datetime',
+        'cleared_at'    => 'datetime',
     ];
 
     public function getTable(): string

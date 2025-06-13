@@ -14,7 +14,8 @@ class EnforceTwoFactorAuthentication
 {
     public function __construct(
         private TwoFactorAuthenticationService $twoFactorService
-    ) {}
+    ) {
+    }
 
     /**
      * Handle the incoming request.
@@ -25,7 +26,7 @@ class EnforceTwoFactorAuthentication
 
         if ($user instanceof TwoFactorAuthenticatable &&
             $this->twoFactorService->isRequired($user) &&
-            ! $this->twoFactorService->isSetup($user)) {
+            !$this->twoFactorService->isSetup($user)) {
             return redirect()->route('two-factor.setup');
         }
 

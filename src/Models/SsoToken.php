@@ -30,7 +30,7 @@ class SsoToken extends Model
     ];
 
     protected $casts = [
-        'issued_at' => 'datetime',
+        'issued_at'  => 'datetime',
         'expires_at' => 'datetime',
     ];
 

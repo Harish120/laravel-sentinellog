@@ -27,7 +27,7 @@ trait NotifiesAuthenticationEvents
      */
     public function notifyFailedAttempt(AuthenticationLog $log): void
     {
-        if (! config('sentinel-log.notifications.failed_attempt.enabled', false)) {
+        if (!config('sentinel-log.notifications.failed_attempt.enabled', false)) {
             return;
         }
 

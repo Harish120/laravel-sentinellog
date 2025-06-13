@@ -31,7 +31,7 @@ class LogFailedLogin
 
     public function handle(Failed $event): void
     {
-        if (! config('sentinel-log.enabled', true) || ! config('sentinel-log.events.failed', true)) {
+        if (!config('sentinel-log.enabled', true) || !config('sentinel-log.events.failed', true)) {
             return;
         }
 
@@ -39,14 +39,14 @@ class LogFailedLogin
         $this->bruteForceService->checkBruteForce();
 
         $log = AuthenticationLog::create([
-            'authenticatable_id' => $event->user ? $event->user->getKey() : null,
+            'authenticatable_id'   => $event->user ? $event->user->getKey() : null,
             'authenticatable_type' => $event->user ? get_class($event->user) : null,
-            'event_name' => 'failed',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'device_info' => $this->fingerprintService->generate(),
-            'location' => $this->geoService->getLocation(request()->ip()),
-            'is_successful' => false,
+            'event_name'           => 'failed',
+            'ip_address'           => request()->ip(),
+            'user_agent'           => request()->userAgent(),
+            'device_info'          => $this->fingerprintService->generate(),
+            'location'             => $this->geoService->getLocation(request()->ip()),
+            'is_successful'        => false,
         ]);
 
         if ($event->user instanceof NotifiableWithFailedAttempt) {
