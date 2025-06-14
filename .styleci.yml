@@ -3,7 +3,7 @@ preset: laravel
 risky: true
 
 finder:
-  paths:
+  path:
     - src
     - tests
     - config
