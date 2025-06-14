@@ -31,6 +31,6 @@ return new class() extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('{{table_name}}');
+        Schema::dropIfExists(config('sentinel-log.table_name', 'authentication_logs'));
     }
 };
