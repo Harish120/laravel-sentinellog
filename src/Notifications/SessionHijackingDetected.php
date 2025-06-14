@@ -37,7 +37,7 @@ class SessionHijackingDetected extends Notification
         $city = @$location['city'] ?? 'Unknown';
         $country = @$location['country'] ?? 'Unknown';
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject('Potential SentinelSession Hijacking Detected')
             ->line('We detected suspicious activity on your account.')
             ->line("Reason: {$this->reason}")

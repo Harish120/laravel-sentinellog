@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * @property int            $id
- * @property string         $session_id
- * @property string         $ip_address
- * @property array          $device_info
- * @property array          $location
- * @property int            $authenticatable_id
- * @property string         $authenticatable_type
+ * @property int $id
+ * @property string $session_id
+ * @property string $ip_address
+ * @property array $device_info
+ * @property array $location
+ * @property int $authenticatable_id
+ * @property string $authenticatable_type
  * @property \Carbon\Carbon $last_activity
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at

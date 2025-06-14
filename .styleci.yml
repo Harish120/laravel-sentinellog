@@ -1,0 +1,18 @@
+preset: laravel
+
+risky: true
+
+finder:
+  path:
+    - src
+    - tests
+    - config
+    - database
+
+  not-path:
+    - vendor
+    - build
+    - .github
+
+disabled:
+  - single_line_after_imports
