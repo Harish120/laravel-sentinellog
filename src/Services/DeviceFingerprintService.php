@@ -41,7 +41,8 @@ class DeviceFingerprintService
      */
     public function isNewDevice(Authenticatable $user, string $hash): bool
     {
-        Log::info('parameters ',
+        Log::info(
+            'parameters ',
             [
                 'authenticatable_id' => $user->getKey(),
                 'authenticatable_type' => get_class($user),
@@ -49,7 +50,8 @@ class DeviceFingerprintService
                 'hash' => $hash,
             ]
         );
-        Log::info('isNewDevice',
+        Log::info(
+            'isNewDevice',
             [AuthenticationLog::where('authenticatable_id', $user->getKey())
                 ->where('authenticatable_type', get_class($user))
                 ->where('is_successful', true)
