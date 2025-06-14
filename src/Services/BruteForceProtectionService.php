@@ -26,7 +26,7 @@ class BruteForceProtectionService
      */
     public function isIpBlocked(string $ip): bool
     {
-        if (!config('sentinel-log.brute_force.enabled', true)) {
+        if (! config('sentinel-log.brute_force.enabled', true)) {
             return false;
         }
 
@@ -40,7 +40,7 @@ class BruteForceProtectionService
      */
     public function getAttempts(string $ip): int
     {
-        if (!config('sentinel-log.brute_force.enabled', true)) {
+        if (! config('sentinel-log.brute_force.enabled', true)) {
             return 0;
         }
 
@@ -52,7 +52,7 @@ class BruteForceProtectionService
      */
     public function checkBruteForce(): void
     {
-        if (!config('sentinel-log.brute_force.enabled', true)) {
+        if (! config('sentinel-log.brute_force.enabled', true)) {
             return;
         }
 
@@ -72,7 +72,7 @@ class BruteForceProtectionService
             BlockedIp::create([
                 'ip_address' => $ip,
                 'expires_at' => now()->addHours(config('sentinel-log.brute_force.block_duration', 24)),
-                'reason'     => 'Excessive failed login attempts',
+                'reason' => 'Excessive failed login attempts',
             ]);
             Cache::forget($cacheKey);
             abort(403, 'Too many login attempts. Your IP is now blocked.');
@@ -84,7 +84,7 @@ class BruteForceProtectionService
      */
     public function checkGeoFence(): void
     {
-        if (!config('sentinel-log.geo_fencing.enabled', false)) {
+        if (! config('sentinel-log.geo_fencing.enabled', false)) {
             return;
         }
 
@@ -96,12 +96,12 @@ class BruteForceProtectionService
         $location = $this->geoService->getLocation($this->request->ip());
         $country = $location['country'] ?? null;
 
-        if ($country && !in_array($country, $allowedCountries, true)) {
+        if ($country && ! in_array($country, $allowedCountries, true)) {
             AuthenticationLog::create([
-                'event_name'    => 'geo_fence_blocked',
-                'ip_address'    => $this->request->ip(),
-                'user_agent'    => $this->request->userAgent(),
-                'location'      => $location,
+                'event_name' => 'geo_fence_blocked',
+                'ip_address' => $this->request->ip(),
+                'user_agent' => $this->request->userAgent(),
+                'location' => $location,
                 'is_successful' => false,
             ]);
             abort(403, 'Login not allowed from your location.');

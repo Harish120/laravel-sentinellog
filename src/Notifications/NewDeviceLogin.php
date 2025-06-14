@@ -50,10 +50,10 @@ class NewDeviceLogin extends Notification
     public function toArray(): array
     {
         return [
-            'event'      => 'new_device_login',
+            'event' => 'new_device_login',
             'ip_address' => $this->log->ip_address,
-            'location'   => $this->log->location,
-            'event_at'   => $this->log->event_at->toDateTimeString(),
+            'location' => $this->log->location,
+            'event_at' => $this->log->event_at->toDateTimeString(),
         ];
     }
 }

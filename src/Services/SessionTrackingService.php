@@ -30,7 +30,7 @@ class SessionTrackingService
      */
     public function track(Authenticatable $authenticatable): SentinelSession
     {
-        if (!config('sentinel-log.sessions.enabled', true)) {
+        if (! config('sentinel-log.sessions.enabled', true)) {
             throw new Exception('Session tracking is disabled');
         }
 
@@ -56,13 +56,13 @@ class SessionTrackingService
         $session = SentinelSession::updateOrCreate(
             ['session_id' => $sessionId],
             [
-                'authenticatable_id'   => $authenticatable->getKey(),
+                'authenticatable_id' => $authenticatable->getKey(),
                 'authenticatable_type' => get_class($authenticatable),
-                'ip_address'           => $this->request->ip(),
-                'user_agent'           => $this->request->userAgent(),
-                'device_info'          => $this->fingerprintService->generate(),
-                'location'             => $this->geoService->getLocation($this->request->ip()),
-                'last_activity'        => now(),
+                'ip_address' => $this->request->ip(),
+                'user_agent' => $this->request->userAgent(),
+                'device_info' => $this->fingerprintService->generate(),
+                'location' => $this->geoService->getLocation($this->request->ip()),
+                'last_activity' => now(),
             ]
         );
 
@@ -77,7 +77,7 @@ class SessionTrackingService
     public function detectHijacking(SentinelSession $currentSession): ?array
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
@@ -98,7 +98,7 @@ class SessionTrackingService
             ) {
                 return [
                     'session' => $session,
-                    'reason'  => 'Location or device mismatch detected',
+                    'reason' => 'Location or device mismatch detected',
                 ];
             }
         }
