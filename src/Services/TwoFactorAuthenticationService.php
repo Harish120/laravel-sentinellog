@@ -59,11 +59,11 @@ class TwoFactorAuthenticationService
     {
         $label = urlencode("{$issuer}:{$email}");
         $params = http_build_query([
-            'secret'    => $secret,
-            'issuer'    => $issuer,
+            'secret' => $secret,
+            'issuer' => $issuer,
             'algorithm' => 'SHA1',
-            'digits'    => 6,
-            'period'    => 30,
+            'digits' => 6,
+            'period' => 30,
         ]);
 
         return "otpauth://totp/{$label}?{$params}";

@@ -57,11 +57,11 @@ class FailedLoginAttempt extends Notification
     public function toArray(): array
     {
         return [
-            'event'         => 'failed_login_attempt',
-            'ip_address'    => $this->log->ip_address,
-            'location'      => $this->log->location,
+            'event' => 'failed_login_attempt',
+            'ip_address' => $this->log->ip_address,
+            'location' => $this->log->location,
             'attempt_count' => $this->attemptCount,
-            'event_at'      => $this->log->event_at->toDateTimeString(),
+            'event_at' => $this->log->event_at->toDateTimeString(),
         ];
     }
 }
