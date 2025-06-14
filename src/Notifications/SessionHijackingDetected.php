@@ -54,11 +54,11 @@ class SessionHijackingDetected extends Notification
     public function toArray(): array
     {
         return [
-            'event'      => 'session_hijacking',
+            'event' => 'session_hijacking',
             'session_id' => $this->session->session_id,
             'ip_address' => $this->session->ip_address,
-            'location'   => $this->session->location,
-            'reason'     => $this->reason,
+            'location' => $this->session->location,
+            'reason' => $this->reason,
         ];
     }
 }

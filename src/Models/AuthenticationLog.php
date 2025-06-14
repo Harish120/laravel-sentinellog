@@ -9,16 +9,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * @property int            $id
- * @property string         $event_name
- * @property string         $ip_address
- * @property string         $user_agent
- * @property array          $device_info
- * @property array          $location
- * @property bool           $is_successful
- * @property string         $session_id
- * @property int            $authenticatable_id
- * @property string         $authenticatable_type
+ * @property int $id
+ * @property string $event_name
+ * @property string $ip_address
+ * @property string $user_agent
+ * @property array $device_info
+ * @property array $location
+ * @property bool $is_successful
+ * @property string $session_id
+ * @property int $authenticatable_id
+ * @property string $authenticatable_type
  * @property \Carbon\Carbon $event_at
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
@@ -40,11 +40,11 @@ class AuthenticationLog extends Model
     ];
 
     protected $casts = [
-        'device_info'   => 'array',
-        'location'      => 'array',
+        'device_info' => 'array',
+        'location' => 'array',
         'is_successful' => 'boolean',
-        'event_at'      => 'datetime',
-        'cleared_at'    => 'datetime',
+        'event_at' => 'datetime',
+        'cleared_at' => 'datetime',
     ];
 
     public function getTable(): string

@@ -45,11 +45,11 @@ describe('AuthenticationLogTest', function () {
         $model = new AuthenticationLog();
 
         $expectedCasts = [
-            'device_info'   => 'array',
-            'location'      => 'array',
+            'device_info' => 'array',
+            'location' => 'array',
             'is_successful' => 'boolean',
-            'event_at'      => 'datetime',
-            'cleared_at'    => 'datetime',
+            'event_at' => 'datetime',
+            'cleared_at' => 'datetime',
         ];
 
         $this->assertEquals($expectedCasts, array_intersect($expectedCasts, $model->getCasts()));
@@ -70,11 +70,11 @@ describe('AuthenticationLogTest', function () {
         $model = new AuthenticationLog();
 
         $data = [
-            'event_name'    => 'login',
-            'ip_address'    => '127.0.0.1',
-            'user_agent'    => 'PHPUnit Test',
-            'device_info'   => ['browser' => 'Test Browser'],
-            'location'      => ['country' => 'Test Country'],
+            'event_name' => 'login',
+            'ip_address' => '127.0.0.1',
+            'user_agent' => 'PHPUnit Test',
+            'device_info' => ['browser' => 'Test Browser'],
+            'location' => ['country' => 'Test Country'],
             'is_successful' => true,
         ];
 
