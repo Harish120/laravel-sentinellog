@@ -4,13 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-
-class SentinelLogServiceProviderTest extends TestCase
-{
-    /** @test */
-    public function it_properly_merges_config(): void
-    {
+describe('SentinelLogServiceProviderTest', function () {
+    it('properly merges config', function () {
         $config = config('sentinel-log');
 
         expect($config)->toBeArray()
@@ -18,15 +13,13 @@ class SentinelLogServiceProviderTest extends TestCase
             ->and($config)->toHaveKey('events')
             ->and($config)->toHaveKey('table_name')
             ->and($config['table_name'])->toBe('authentication_logs');
-    }
+    });
 
-    /** @test */
-    public function it_loads_migrations(): void
-    {
+    it('loads migrations', function () {
         $migrations = $this->app->make('migrator')
-            ->getMigrationFiles(__DIR__ . '/../../database/migrations');
+            ->getMigrationFiles(__DIR__.'/../../database/migrations');
 
         expect($migrations)->toBeArray()
             ->and($migrations)->toHaveCount(5); // We have 5 migration files in the package
-    }
-}
+    });
+});
