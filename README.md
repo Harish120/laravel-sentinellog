@@ -2,8 +2,8 @@
 # Laravel SentinelLog
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PHP Version](https://img.shields.io/badge/PHP-7.4%20%7C%208.x-blue)](https://php.net)
-[![Laravel Version](https://img.shields.io/badge/Laravel-8.x%20%7C%209.x%20%7C%2010.x%20%7C%2011.x%20%7C%2012.x-blue)](https://laravel.com)
+[![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue)](https://php.net)
+[![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20%7C%2011.x%20%7C%2012.x-blue)](https://laravel.com)
 
 **Laravel SentinelLog** is a powerful, all-in-one authentication logging and security package for Laravel. It provides advanced features like device tracking, 2FA, session management, brute force protection, geo-fencing, and SSO support, ensuring security while keeping users informed.
 
@@ -34,7 +34,7 @@ This demo project showcases:
 To run the demo locally:
 ```bash
 git clone https://github.com/Harish120/sentinel-test.git
-cd laravel-sentinellog-demo
+cd sentinel-test
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -48,8 +48,8 @@ Visit `http://localhost:8000` to explore the demo.
 ## Installation
 
 ### Prerequisites
-- PHP 7.4 or 8.x
-- Laravel 8.x, 9.x, 10.x, 11.x, or 12.x
+- PHP 8.1 or higher
+- Laravel 10.x, 11.x, or 12.x
 - Composer
 
 ### Steps
