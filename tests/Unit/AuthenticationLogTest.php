@@ -8,14 +8,10 @@ use Harryes\SentinelLog\Models\AuthenticationLog;
 use Harryes\SentinelLog\Models\SentinelSession;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Tests\TestCase;
 
-class AuthenticationLogTest extends TestCase
-{
-    /** @test */
-    public function it_uses_correct_table_name_from_config(): void
-    {
-        $model = new AuthenticationLog;
+describe('AuthenticationLogTest', function () {
+    it('uses correct table name from config', function () {
+        $model = new AuthenticationLog();
 
         // Default table name
         $this->assertEquals('authentication_logs', $model->getTable());
@@ -23,12 +19,10 @@ class AuthenticationLogTest extends TestCase
         // Custom table name
         config(['sentinel-log.table_name' => 'custom_auth_logs']);
         $this->assertEquals('custom_auth_logs', $model->getTable());
-    }
+    });
 
-    /** @test */
-    public function it_has_correct_fillable_attributes(): void
-    {
-        $model = new AuthenticationLog;
+    it('has correct fillable attributes', function () {
+        $model = new AuthenticationLog();
 
         $expectedFillable = [
             'authenticatable_id',
@@ -45,12 +39,10 @@ class AuthenticationLogTest extends TestCase
         ];
 
         $this->assertEquals($expectedFillable, $model->getFillable());
-    }
+    });
 
-    /** @test */
-    public function it_has_correct_cast_attributes(): void
-    {
-        $model = new AuthenticationLog;
+    it('has correct cast attributes', function () {
+        $model = new AuthenticationLog();
 
         $expectedCasts = [
             'device_info' => 'array',
@@ -61,12 +53,10 @@ class AuthenticationLogTest extends TestCase
         ];
 
         $this->assertEquals($expectedCasts, array_intersect($expectedCasts, $model->getCasts()));
-    }
+    });
 
-    /** @test */
-    public function it_has_correct_relationship_methods(): void
-    {
-        $model = new AuthenticationLog;
+    it('has correct relationship methods', function () {
+        $model = new AuthenticationLog();
 
         $this->assertInstanceOf(MorphTo::class, $model->authenticatable());
 
@@ -74,12 +64,10 @@ class AuthenticationLogTest extends TestCase
         $this->assertInstanceOf(BelongsTo::class, $sessionRelation);
         $this->assertInstanceOf(SentinelSession::class, $sessionRelation->getRelated());
         $this->assertEquals('session_id', $sessionRelation->getForeignKeyName());
-    }
+    });
 
-    /** @test */
-    public function it_can_set_attributes(): void
-    {
-        $model = new AuthenticationLog;
+    it('can set attributes', function () {
+        $model = new AuthenticationLog();
 
         $data = [
             'event_name' => 'login',
@@ -98,5 +86,5 @@ class AuthenticationLogTest extends TestCase
         $this->assertEquals(['browser' => 'Test Browser'], $model->device_info);
         $this->assertEquals(['country' => 'Test Country'], $model->location);
         $this->assertTrue($model->is_successful);
-    }
-}
+    });
+});
