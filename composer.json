@@ -1,6 +1,6 @@
 {
   "name": "harryes/laravel-sentinellog",
-  "description": "A vigilant authentication logging and security package for Laravel 8-12.",
+  "description": "A vigilant authentication logging and security package for Laravel 10-12.",
   "type": "laravel-package",
   "license": "MIT",
   "version": "v0.0.2",
