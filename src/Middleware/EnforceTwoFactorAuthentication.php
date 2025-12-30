@@ -14,8 +14,7 @@ class EnforceTwoFactorAuthentication
 {
     public function __construct(
         private TwoFactorAuthenticationService $twoFactorService
-    ) {
-    }
+    ) {}
 
     /**
      * Handle the incoming request.

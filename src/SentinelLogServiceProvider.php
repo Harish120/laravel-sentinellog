@@ -21,13 +21,13 @@ class SentinelLogServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/sentinel-log.php', 'sentinel-log');
+        $this->mergeConfigFrom(__DIR__ . '/../config/sentinel-log.php', 'sentinel-log');
     }
 
     public function boot(): void
     {
-        $this->publishes([__DIR__.'/../config/sentinel-log.php' => config_path('sentinel-log.php')], 'sentinel-log-config');
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->publishes([__DIR__ . '/../config/sentinel-log.php' => config_path('sentinel-log.php')], 'sentinel-log-config');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         Event::listen(Login::class, LogSuccessfulLogin::class);
         Event::listen(Login::class, LogSsoLogin::class);
         Event::listen(Logout::class, LogSuccessfulLogout::class);

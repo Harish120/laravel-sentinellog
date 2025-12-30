@@ -26,7 +26,7 @@ class TwoFactorAuthenticationService
         $secret = Base32::decodeUpper($secret);
         $timestamp = $timestamp ?? floor(time() / 30); // 30-second window
 
-        $binary = pack('N*', 0).pack('N*', $timestamp);
+        $binary = pack('N*', 0) . pack('N*', $timestamp);
         $hash = hash_hmac('sha1', $binary, $secret, true);
         $offset = ord($hash[19]) & 0x0F;
 

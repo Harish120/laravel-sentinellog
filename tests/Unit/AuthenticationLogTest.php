@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 describe('AuthenticationLogTest', function () {
     it('uses correct table name from config', function () {
-        $model = new AuthenticationLog();
+        $model = new AuthenticationLog;
 
         // Default table name
         $this->assertEquals('authentication_logs', $model->getTable());
@@ -22,7 +22,7 @@ describe('AuthenticationLogTest', function () {
     });
 
     it('has correct fillable attributes', function () {
-        $model = new AuthenticationLog();
+        $model = new AuthenticationLog;
 
         $expectedFillable = [
             'authenticatable_id',
@@ -42,7 +42,7 @@ describe('AuthenticationLogTest', function () {
     });
 
     it('has correct cast attributes', function () {
-        $model = new AuthenticationLog();
+        $model = new AuthenticationLog;
 
         $expectedCasts = [
             'device_info' => 'array',
@@ -56,7 +56,7 @@ describe('AuthenticationLogTest', function () {
     });
 
     it('has correct relationship methods', function () {
-        $model = new AuthenticationLog();
+        $model = new AuthenticationLog;
 
         $this->assertInstanceOf(MorphTo::class, $model->authenticatable());
 
@@ -67,7 +67,7 @@ describe('AuthenticationLogTest', function () {
     });
 
     it('can set attributes', function () {
-        $model = new AuthenticationLog();
+        $model = new AuthenticationLog;
 
         $data = [
             'event_name' => 'login',
