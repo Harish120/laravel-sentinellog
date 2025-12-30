@@ -34,7 +34,7 @@ class NewDeviceLogin extends Notification
         $city = $location['city'] ?? 'Unknown';
         $country = $location['country'] ?? 'Unknown';
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->subject('New Device Login Detected')
             ->line('A login was detected from a new device.')
             ->line("IP: {$this->log->ip_address}")

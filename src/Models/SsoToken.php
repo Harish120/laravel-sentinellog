@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * @property int $id
- * @property int $authenticatable_id
- * @property string $authenticatable_type
- * @property string $token
- * @property string $client_id
+ * @property int                 $id
+ * @property int                 $authenticatable_id
+ * @property string              $authenticatable_type
+ * @property string              $token
+ * @property string              $client_id
  * @property \Carbon\Carbon|null $issued_at
  * @property \Carbon\Carbon|null $expires_at
  */

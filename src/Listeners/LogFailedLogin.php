@@ -63,7 +63,7 @@ interface NotifiableWithFailedAttempt extends Authenticatable
     /**
      * Notify the user of a failed login attempt.
      *
-     * @param  array<string, mixed>  $data  The authentication log data
+     * @param array<string, mixed> $data The authentication log data
      */
     public function notifyFailedAttempt(array $data): void;
 }

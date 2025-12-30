@@ -16,8 +16,8 @@ describe('SentinelLogServiceProviderTest', function () {
     });
 
     it('loads migrations', function () {
-        $migrations = $this->app->make('migrator')
-            ->getMigrationFiles(__DIR__.'/../../database/migrations');
+        $migrations = app('migrator')
+            ->getMigrationFiles(__DIR__ . '/../../database/migrations');
 
         expect($migrations)->toBeArray()
             ->and($migrations)->toHaveCount(5); // We have 5 migration files in the package
