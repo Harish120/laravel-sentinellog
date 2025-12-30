@@ -43,6 +43,25 @@ jobs:
             laravel: "^11.0"
           - php: 8.1
             laravel: "^12.0"
+          # Exclude prefer-lowest for Laravel 10 & 11 due to Pest 2.0/PHPUnit compatibility issues
+          - php: 8.1
+            laravel: "^10.0"
+            dependency-version: prefer-lowest
+          - php: 8.2
+            laravel: "^10.0"
+            dependency-version: prefer-lowest
+          - php: 8.2
+            laravel: "^11.0"
+            dependency-version: prefer-lowest
+          - php: 8.3
+            laravel: "^10.0"
+            dependency-version: prefer-lowest
+          - php: 8.3
+            laravel: "^11.0"
+            dependency-version: prefer-lowest
+          - php: 8.4
+            laravel: "^11.0"
+            dependency-version: prefer-lowest
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - Dependency Version ${{ matrix.dependency-version }}
     steps:
