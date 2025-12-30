@@ -62,6 +62,5 @@ jobs:
           composer update --${{ matrix.dependency-version }} --no-interaction --prefer-dist
 
       - name: Run Tests
-        if: ${{ matrix.laravel != '^10.0' }}
         run: |
           vendor/bin/pest --parallel
