@@ -3,7 +3,7 @@
   "description": "A vigilant authentication logging and security package for Laravel 10-13.",
   "type": "laravel-package",
   "license": "MIT",
-  "version": "v0.0.2",
+  "version": "v0.1.0",
   "keywords": [
     "laravel",
     "sentinel",
