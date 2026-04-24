@@ -14,9 +14,17 @@ parameters:
         - message: '~Parameter #1 \$callback of method Pest\\Expectation::extend\(\) expects callable\(.*\), Closure\(.*\) given~'
           path: tests/Pest.php
 
+        # ✅ Pest: template type covariance in expect()->extend() closure
+        - message: '~Anonymous function should return Pest\\Mixins\\Expectation.*but returns Pest\\Mixins\\Expectation~'
+          path: tests/Pest.php
+
         # ✅ Laravel Model toArray covariance
         - message: '~Return type \(array\) of method .+::toArray\(\) should be covariant with return type \(array<string, mixed>\) of method Illuminate\\\\Contracts\\\\Support\\\\Arrayable<string,mixed>::toArray\(\)~'
           path: src/Models/AuthenticationLog.php
+
+        # ✅ Trait analysed in isolation — it is intended for end-user models
+        - identifier: trait.unused
+          path: src/Traits/NotifiesAuthenticationEvents.php
 
     excludePaths:
         - build

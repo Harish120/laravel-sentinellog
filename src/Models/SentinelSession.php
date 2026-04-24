@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int            $id
  * @property string         $session_id
  * @property string         $ip_address
- * @property array          $device_info
- * @property array          $location
+ * @property array<string, mixed> $device_info
+ * @property array<string, mixed> $location
  * @property int            $authenticatable_id
  * @property string         $authenticatable_type
  * @property \Carbon\Carbon $last_activity
