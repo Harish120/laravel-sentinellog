@@ -13,8 +13,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property string         $event_name
  * @property string         $ip_address
  * @property string         $user_agent
- * @property array          $device_info
- * @property array          $location
+ * @property array<string, mixed> $device_info
+ * @property array<string, mixed> $location
  * @property bool           $is_successful
  * @property string         $session_id
  * @property int            $authenticatable_id
