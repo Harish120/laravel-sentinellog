@@ -15,12 +15,10 @@ jobs:
         laravel: ["^10.0", "^11.0", "^12.0", "^13.0"]
         dependency-version: [prefer-lowest, prefer-stable]
         include:
-          # Laravel 13 (requires PHP 8.2+)
+          # Laravel 13 (requires PHP 8.3+)
           - php: 8.4
             laravel: "^13.0"
           - php: 8.3
-            laravel: "^13.0"
-          - php: 8.2
             laravel: "^13.0"
 
           # Laravel 12
@@ -51,8 +49,10 @@ jobs:
             laravel: "^11.0"
           - php: 8.1
             laravel: "^12.0"
-          # Laravel 13 requires PHP 8.2+
+          # Laravel 13 requires PHP 8.3+
           - php: 8.1
+            laravel: "^13.0"
+          - php: 8.2
             laravel: "^13.0"
           # Exclude prefer-lowest for Laravel 10 & 11 due to Pest 2.0/PHPUnit compatibility issues
           - php: 8.1
@@ -74,9 +74,6 @@ jobs:
             laravel: "^11.0"
             dependency-version: prefer-lowest
           # Exclude prefer-lowest for Laravel 13 due to Pest/PHPUnit compatibility
-          - php: 8.2
-            laravel: "^13.0"
-            dependency-version: prefer-lowest
           - php: 8.3
             laravel: "^13.0"
             dependency-version: prefer-lowest
