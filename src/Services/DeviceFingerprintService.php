@@ -7,7 +7,6 @@ namespace Harryes\SentinelLog\Services;
 use Harryes\SentinelLog\Models\AuthenticationLog;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class DeviceFingerprintService
 {
@@ -41,34 +40,10 @@ class DeviceFingerprintService
      */
     public function isNewDevice(Authenticatable $user, string $hash): bool
     {
-        Log::info(
-            'parameters ',
-            [
-                'authenticatable_id' => $user->getKey(),
-                'authenticatable_type' => get_class($user),
-                'is_successful' => true,
-                'hash' => $hash,
-            ]
-        );
-        Log::info(
-            'isNewDevice',
-            [AuthenticationLog::where('authenticatable_id', $user->getKey())
-                ->where('authenticatable_type', get_class($user))
-                ->where('is_successful', true)
-                ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(device_info, "$.hash")) = ?', [$hash])->toSql()]
-        );
-        Log::alert('Exists', [
-            AuthenticationLog::where('authenticatable_id', $user->getKey())
-                ->where('authenticatable_type', get_class($user))
-                ->where('is_successful', true)
-                ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(device_info, "$.hash")) = ?', [$hash])
-                ->exists(),
-        ]);
-
         return ! AuthenticationLog::where('authenticatable_id', $user->getKey())
             ->where('authenticatable_type', get_class($user))
             ->where('is_successful', true)
-            ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(device_info, "$.hash")) = ?', [$hash])
+            ->where('device_info->hash', $hash)
             ->exists();
     }
 

@@ -20,6 +20,6 @@ describe('SentinelLogServiceProviderTest', function () {
             ->getMigrationFiles(__DIR__ . '/../../database/migrations');
 
         expect($migrations)->toBeArray()
-            ->and($migrations)->toHaveCount(5); // We have 5 migration files in the package
+            ->and($migrations)->toHaveCount(6); // We have 6 migration files in the package
     });
 });

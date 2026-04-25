@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Harryes\SentinelLog;
 
+use Harryes\SentinelLog\Http\Controllers\LocationVerificationController;
 use Harryes\SentinelLog\Listeners\LogFailedLogin;
 use Harryes\SentinelLog\Listeners\LogSsoLogin;
 use Harryes\SentinelLog\Listeners\LogSuccessfulLogin;
@@ -38,6 +39,15 @@ class SentinelLogServiceProvider extends ServiceProvider
         }
         if (config('sentinel-log.geo_fencing.enabled', false)) {
             Route::aliasMiddleware('sentinel-log.geofence', EnforceGeoFencing::class);
+        }
+
+        if (config('sentinel-log.location_verification.enabled', true)) {
+            Route::group(['middleware' => ['web'], 'prefix' => 'sentinel-log/location'], function () {
+                Route::get('verify/{token}', [LocationVerificationController::class, 'verify'])
+                    ->name('sentinel-log.location.verify');
+                Route::get('deny/{token}', [LocationVerificationController::class, 'deny'])
+                    ->name('sentinel-log.location.deny');
+            });
         }
     }
 }
