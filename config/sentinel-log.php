@@ -55,4 +55,12 @@ return [
         'client_id' => env('SENTINEL_LOG_SSO_CLIENT_ID', 'default_client'),
         'token_lifetime' => 24, // Hours
     ],
+
+    'location_verification' => [
+        'enabled' => env('SENTINEL_LOG_LOCATION_VERIFICATION_ENABLED', true),
+        'channels' => ['mail'],
+        'token_ttl' => 30, // Minutes until the verify/deny links expire
+        'redirect_after_verify' => '/',
+        'redirect_after_deny' => '/',
+    ],
 ];
