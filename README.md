@@ -16,6 +16,7 @@
 - **Brute Force Protection**: Rate-limits login attempts and blocks suspicious IPs.
 - **Geo-Fencing**: Restricts logins to specific countries.
 - **Single Sign-On (SSO)**: Token-based SSO for seamless authentication.
+- **New Location Verification**: Detects logins from unrecognised locations and emails the user a verify/deny link, invalidating the session on denial.
 
 ## Demo Project
 
@@ -123,6 +124,17 @@ Edit `config/sentinel-log.php` to customize the package. Key options:
     'sso' => ['enabled' => false, 'client_id' => 'default_client', 'token_lifetime' => 24],
 ```
 
+### New Location Verification
+```php
+    'location_verification' => [
+        'enabled' => true,
+        'channels' => ['mail'],
+        'token_ttl' => 30, // Minutes until verify/deny links expire
+        'redirect_after_verify' => '/',
+        'redirect_after_deny' => '/',
+    ],
+```
+
 ### Environment Variables
 Add these to `.env`:
 ```env
@@ -130,6 +142,7 @@ Add these to `.env`:
     SENTINEL_LOG_2FA_ENABLED=true
     SENTINEL_LOG_GEO_FENCING_ENABLED=true
     SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES="United States,Canada"
+    SENTINEL_LOG_LOCATION_VERIFICATION_ENABLED=true
 ```
 
 ## Usage Examples
@@ -187,6 +200,26 @@ View active sessions:
 
 ### Brute Force & Geo-Fencing
 Attempts are automatically rate-limited, and IPs are blocked after exceeding the threshold. Geo-fencing blocks logins from unallowed countries based on `config/sentinel-log.php`.
+
+### New Location Verification
+When a user logs in from a city/country they have never used before, SentinelLog automatically sends them a `NewLocationLogin` notification with two action links:
+
+- **Yes, this was me** — marks the location as verified and logs a `location_verified` event.
+- **No, deny this login** — marks the login as denied, logs a `location_denied` event, and immediately invalidates the session.
+
+The links expire after `token_ttl` minutes (default 30). No application code changes are required — the check runs inside the `LogSuccessfulLogin` listener on every login.
+
+To disable the feature:
+```env
+SENTINEL_LOG_LOCATION_VERIFICATION_ENABLED=false
+```
+
+To prune expired, unactioned verification records:
+```php
+    use Harryes\SentinelLog\Services\LocationVerificationService;
+
+    app(LocationVerificationService::class)->pruneExpired();
+```
 
 ## Contributing
 Submit issues or pull requests on GitHub. Feedback is welcome!
