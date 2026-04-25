@@ -8,10 +8,12 @@ use Exception;
 use Harryes\SentinelLog\Contracts\TwoFactorAuthenticatable;
 use Harryes\SentinelLog\Models\AuthenticationLog;
 use Harryes\SentinelLog\Notifications\NewDeviceLogin;
+use Harryes\SentinelLog\Notifications\NewLocationLogin;
 use Harryes\SentinelLog\Notifications\SessionHijackingDetected;
 use Harryes\SentinelLog\Services\BruteForceProtectionService;
 use Harryes\SentinelLog\Services\DeviceFingerprintService;
 use Harryes\SentinelLog\Services\GeolocationService;
+use Harryes\SentinelLog\Services\LocationVerificationService;
 use Harryes\SentinelLog\Services\SessionTrackingService;
 use Harryes\SentinelLog\Services\TwoFactorAuthenticationService;
 use Illuminate\Auth\Events\Login;
@@ -29,18 +31,22 @@ class LogSuccessfulLogin
 
     protected BruteForceProtectionService $bruteForceService;
 
+    protected LocationVerificationService $locationVerificationService;
+
     public function __construct(
         DeviceFingerprintService $fingerprintService,
         GeolocationService $geoService,
         TwoFactorAuthenticationService $twoFactorService,
         SessionTrackingService $sessionService,
-        BruteForceProtectionService $bruteForceService
+        BruteForceProtectionService $bruteForceService,
+        LocationVerificationService $locationVerificationService
     ) {
         $this->fingerprintService = $fingerprintService;
         $this->geoService = $geoService;
         $this->twoFactorService = $twoFactorService;
         $this->sessionService = $sessionService;
         $this->bruteForceService = $bruteForceService;
+        $this->locationVerificationService = $locationVerificationService;
     }
 
     public function handle(Login $event): void
@@ -61,6 +67,7 @@ class LogSuccessfulLogin
 
         $deviceInfo = $this->fingerprintService->generate();
         $hash = $deviceInfo['hash'] ?? '';
+        $location = $this->geoService->getLocation(request()->ip());
         $isNewDevice = config('sentinel-log.notifications.new_device.enabled', false) &&
             $this->fingerprintService->isNewDevice($event->user, $hash);
 
@@ -72,7 +79,7 @@ class LogSuccessfulLogin
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'device_info' => $deviceInfo,
-            'location' => $this->geoService->getLocation(request()->ip()),
+            'location' => $location,
             'is_successful' => true,
         ]);
 
@@ -100,6 +107,20 @@ class LogSuccessfulLogin
 
         if ($isNewDevice) {
             Notification::send($event->user, new NewDeviceLogin($log));
+        }
+
+        if (config('sentinel-log.location_verification.enabled', true)) {
+            if ($this->locationVerificationService->isNewLocation($event->user, $location)) {
+                $verification = $this->locationVerificationService->create(
+                    user: $event->user,
+                    ip: request()->ip(),
+                    location: $location,
+                    deviceInfo: $deviceInfo,
+                    userAgent: request()->userAgent() ?? '',
+                    sessionId: $session->session_id,
+                );
+                Notification::send($event->user, new NewLocationLogin($verification));
+            }
         }
 
         if (config('sentinel-log.sessions.enabled', true)) {
