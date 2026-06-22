@@ -66,15 +66,15 @@ class LogSuccessfulLogin
         }
 
         $sessionId = $session !== null ? $session->session_id : session()->getId();
-        $deviceInfo = $this->fingerprintService->generate();
-        $hash = $deviceInfo['hash'] ?? '';
-        $location = $this->geoService->getLocation(request()->ip());
+        $deviceInfo  = $this->fingerprintService->generate();
+        $deviceToken = $deviceInfo['token'] ?? '';
+        $location    = $this->geoService->getLocation(request()->ip());
 
         // Assess against historical data BEFORE recording this login.
         // Once the row is inserted the same queries would always find the current
         // login and produce wrong results (new-device / new-location would never fire).
         $isNewDevice = config('sentinel-log.notifications.new_device.enabled', false)
-            && $this->fingerprintService->isNewDevice($event->user, $hash);
+            && $this->fingerprintService->isNewDevice($event->user, $deviceToken);
 
         $isNewLocation = config('sentinel-log.location_verification.enabled', true)
             && $this->locationVerificationService->isNewLocation($event->user, $location);
