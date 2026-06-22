@@ -141,7 +141,9 @@ class LogSuccessfulLogin
         if ($session !== null) {
             $hijacking = $this->sessionService->detectHijacking($session);
             if ($hijacking) {
-                Notification::send($event->user, new SessionHijackingDetected($hijacking['session'], $hijacking['reason']));
+                if (config('sentinel-log.notifications.session_hijacking.enabled', true)) {
+                    Notification::send($event->user, new SessionHijackingDetected($hijacking['session'], $hijacking['reason']));
+                }
                 AuthenticationLog::create([
                     'authenticatable_id' => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),

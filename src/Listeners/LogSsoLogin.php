@@ -11,6 +11,7 @@ use Harryes\SentinelLog\Services\GeolocationService;
 use Harryes\SentinelLog\Services\SessionTrackingService;
 use Harryes\SentinelLog\Services\SsoAuthenticationService;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Auth;
 
 class LogSsoLogin
 {
@@ -50,6 +51,9 @@ class LogSsoLogin
         $this->bruteForceService->checkGeoFence(); // user not yet resolved at this point
         $user = $this->ssoService->validateToken(request('sso_token'), config('sentinel-log.sso.client_id', 'default_client'));
         if (! $user) {
+            // Auth::login() already completed — log out before aborting so the
+            // attacker cannot reuse the authenticated session on the next request.
+            Auth::logout();
             abort(401, 'Invalid SSO token.');
         }
 
@@ -57,6 +61,7 @@ class LogSsoLogin
         try {
             $session = $this->sessionService->track($user);
         } catch (\Exception $e) {
+            Auth::logout();
             abort(403, $e->getMessage());
         }
 
