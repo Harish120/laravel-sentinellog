@@ -50,12 +50,20 @@ class DeviceFingerprintService
     /**
      * Determine whether this device token has never been seen for this user.
      * A new token means a genuinely new browser, device, or cleared cookies.
+     * Returns false on the first-ever login — no baseline to compare against,
+     * matching the same guard used in LocationVerificationService::isNewLocation().
      */
     public function isNewDevice(Authenticatable $user, string $token): bool
     {
-        return ! AuthenticationLog::where('authenticatable_id', $user->getKey())
+        $priorLogins = AuthenticationLog::where('authenticatable_id', $user->getKey())
             ->where('authenticatable_type', get_class($user))
-            ->where('is_successful', true)
+            ->where('is_successful', true);
+
+        if (! (clone $priorLogins)->exists()) {
+            return false;
+        }
+
+        return ! (clone $priorLogins)
             ->where('device_info->token', $token)
             ->exists();
     }
