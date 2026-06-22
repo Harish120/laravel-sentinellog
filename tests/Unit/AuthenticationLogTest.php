@@ -13,18 +13,16 @@ describe('AuthenticationLogTest', function () {
     it('uses correct table name from config', function () {
         $model = new AuthenticationLog;
 
-        // Default table name
-        $this->assertEquals('authentication_logs', $model->getTable());
+        expect($model->getTable())->toBe('authentication_logs');
 
-        // Custom table name
         config(['sentinel-log.table_name' => 'custom_auth_logs']);
-        $this->assertEquals('custom_auth_logs', $model->getTable());
+        expect($model->getTable())->toBe('custom_auth_logs');
     });
 
     it('has correct fillable attributes', function () {
         $model = new AuthenticationLog;
 
-        $expectedFillable = [
+        expect($model->getFillable())->toBe([
             'authenticatable_id',
             'authenticatable_type',
             'session_id',
@@ -36,9 +34,7 @@ describe('AuthenticationLogTest', function () {
             'is_successful',
             'event_at',
             'cleared_at',
-        ];
-
-        $this->assertEquals($expectedFillable, $model->getFillable());
+        ]);
     });
 
     it('has correct cast attributes', function () {
@@ -52,39 +48,38 @@ describe('AuthenticationLogTest', function () {
             'cleared_at' => 'datetime',
         ];
 
-        $this->assertEquals($expectedCasts, array_intersect($expectedCasts, $model->getCasts()));
+        expect(array_intersect($expectedCasts, $model->getCasts()))->toBe($expectedCasts);
     });
 
     it('has correct relationship methods', function () {
         $model = new AuthenticationLog;
 
-        $this->assertInstanceOf(MorphTo::class, $model->authenticatable());
+        expect($model->authenticatable())->toBeInstanceOf(MorphTo::class);
 
         $sessionRelation = $model->session();
-        $this->assertInstanceOf(BelongsTo::class, $sessionRelation);
-        $this->assertInstanceOf(SentinelSession::class, $sessionRelation->getRelated());
-        $this->assertEquals('session_id', $sessionRelation->getForeignKeyName());
+        expect($sessionRelation)
+            ->toBeInstanceOf(BelongsTo::class)
+            ->and($sessionRelation->getRelated())->toBeInstanceOf(SentinelSession::class)
+            ->and($sessionRelation->getForeignKeyName())->toBe('session_id');
     });
 
     it('can set attributes', function () {
         $model = new AuthenticationLog;
 
-        $data = [
+        $model->fill([
             'event_name' => 'login',
             'ip_address' => '127.0.0.1',
             'user_agent' => 'PHPUnit Test',
             'device_info' => ['browser' => 'Test Browser'],
             'location' => ['country' => 'Test Country'],
             'is_successful' => true,
-        ];
+        ]);
 
-        $model->fill($data);
-
-        $this->assertEquals('login', $model->event_name);
-        $this->assertEquals('127.0.0.1', $model->ip_address);
-        $this->assertEquals('PHPUnit Test', $model->user_agent);
-        $this->assertEquals(['browser' => 'Test Browser'], $model->device_info);
-        $this->assertEquals(['country' => 'Test Country'], $model->location);
-        $this->assertTrue($model->is_successful);
+        expect($model->event_name)->toBe('login')
+            ->and($model->ip_address)->toBe('127.0.0.1')
+            ->and($model->user_agent)->toBe('PHPUnit Test')
+            ->and($model->device_info)->toBe(['browser' => 'Test Browser'])
+            ->and($model->location)->toBe(['country' => 'Test Country'])
+            ->and($model->is_successful)->toBeTrue();
     });
 });
