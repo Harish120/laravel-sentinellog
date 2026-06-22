@@ -101,8 +101,14 @@ Edit `config/sentinel-log.php` to customize the package. Key options:
 
 ### Two-Factor Authentication (2FA)
 ```php
-    'two_factor' => ['enabled' => false, 'middleware' => 'sentinel-log.2fa'],
+    'two_factor' => [
+        'enabled'     => false,
+        'middleware'  => 'sentinel-log.2fa',
+        'setup_route' => 'two-factor.setup', // named route users are redirected to when 2FA is not yet configured
+    ],
 ```
+
+> **Important:** The package does not register a `two-factor.setup` route — you must define it in your own application. If your route has a different name, set `setup_route` to match or use the `SENTINEL_LOG_2FA_SETUP_ROUTE` env variable.
 
 ### Sessions
 ```php
@@ -140,6 +146,7 @@ Add these to `.env`:
 ```env
     SENTINEL_LOG_ENABLED=true
     SENTINEL_LOG_2FA_ENABLED=true
+    SENTINEL_LOG_2FA_SETUP_ROUTE=two-factor.setup
     SENTINEL_LOG_GEO_FENCING_ENABLED=true
     SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES="United States,Canada"
     SENTINEL_LOG_LOCATION_VERIFICATION_ENABLED=true
@@ -177,6 +184,28 @@ Verify 2FA code:
         return back()->withErrors(['code' => 'Invalid 2FA code']);
     });
 ```
+
+### Failed Login Attempt Notifications
+
+To receive notifications when a user's account hits the failed attempt threshold, implement the `NotifiableWithFailedAttempt` contract on your User model alongside the `NotifiesAuthenticationEvents` trait:
+
+```php
+use Harryes\SentinelLog\Contracts\NotifiableWithFailedAttempt;
+use Harryes\SentinelLog\Models\AuthenticationLog;
+use Harryes\SentinelLog\Traits\NotifiesAuthenticationEvents;
+
+class User extends Authenticatable implements NotifiableWithFailedAttempt
+{
+    use NotifiesAuthenticationEvents;
+
+    public function notifyFailedAttempt(AuthenticationLog $log): void
+    {
+        $this->notify(new YourFailedAttemptNotification($log));
+    }
+}
+```
+
+The method is called automatically by the `LogFailedLogin` listener once the threshold defined in `notifications.failed_attempt.threshold` is reached within the configured time window.
 
 ### SSO Integration
 Generate an SSO token:
