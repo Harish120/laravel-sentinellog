@@ -47,6 +47,11 @@ return [
         'block_duration' => 24,
     ],
     'geo_test_ip' => env('SENTINEL_LOG_GEO_TEST_IP', null),
+
+    // Base URL of the geolocation provider. The package appends /{ip} to this URL.
+    // Default uses ipwho.is — free, HTTPS, no API key required.
+    // Custom providers must return JSON with: success (bool), country, city, latitude, longitude, ip.
+    'geo_provider_url' => env('SENTINEL_LOG_GEO_PROVIDER_URL', 'https://ipwho.is'),
     'geo_fencing' => [
         'enabled' => env('SENTINEL_LOG_GEO_FENCING_ENABLED', false),
         'allowed_countries' => explode(',', env('SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES', 'United States,Canada')),
