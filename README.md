@@ -64,6 +64,12 @@ Visit `http://localhost:8000` to explore the demo.
   php artisan vendor:publish --tag=sentinel-log-config
 ```
 
+2a. *(Optional)* **Publish Views** — to customise the verify/deny confirmation pages:
+```bash
+  php artisan vendor:publish --tag=sentinel-log-views
+```
+This copies the Blade templates to `resources/views/vendor/sentinel-log/location/`.
+
 3. **Run Migrations**
 ```bash
   php artisan migrate
@@ -282,10 +288,12 @@ Attempts are automatically rate-limited, and IPs are blocked after exceeding the
 ### New Location Verification
 When a user logs in from a city/country they have never used before, SentinelLog automatically sends them a `NewLocationLogin` notification with two action links:
 
-- **Yes, this was me** — marks the location as verified and logs a `location_verified` event.
-- **No, deny this login** — opens a confirmation page showing the location and IP details. The user must click a confirm button which submits a `POST` request to revoke the session, logging a `location_denied` event.
+- **Yes, this was me** — opens a confirmation page. The user clicks confirm which submits a `POST` request, marking the location as trusted and logging a `location_verified` event.
+- **No, deny this login** — opens a confirmation page showing the location and IP details. The user clicks confirm which submits a `POST` request to revoke the session, logging a `location_denied` event.
 
-> **Why a confirmation step for denial?** Email security scanners (Outlook Safe Links, Apple Mail, Gmail) automatically follow every link in an email on delivery. Without a confirmation page, these scanners would revoke the user's session before they even read the email.
+> **Why confirmation pages for both links?** Email security scanners (Outlook Safe Links, Apple Mail, Gmail) automatically follow every link in an email on delivery. Without a confirmation step, scanners would silently trust or revoke the session before the user even reads the email.
+
+Both confirmation pages are Blade templates you can customise — see the installation steps above.
 
 The links expire after `token_ttl` minutes (default 30). No application code changes are required — the check runs inside the `LogSuccessfulLogin` listener on every login.
 
