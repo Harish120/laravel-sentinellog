@@ -18,35 +18,36 @@ class GeolocationService
     public function getLocation(string $ip): array
     {
         if (in_array($ip, ['127.0.0.1', '::1'])) {
-            // Use a configurable test IP or fallback
             $testIp = config('sentinel-log.geo_test_ip', null);
             if ($testIp) {
-                $ip = $testIp;  // Override with test IP if set
+                $ip = $testIp;
             } else {
                 return [
                     'country' => 'Local',
-                    'city' => 'Localhost',
-                    'lat' => 0,
-                    'lon' => 0,
+                    'city'    => 'Localhost',
+                    'lat'     => 0,
+                    'lon'     => 0,
                 ];
             }
         }
 
         try {
             $cacheKey = "sentinel_log_geo_{$ip}";
-            $data = Cache::remember($cacheKey, 3600, function () use ($ip) {
-                $response = Http::get("http://ip-api.com/json/{$ip}?fields=country,city,lat,lon,query,status");
 
-                return $response->json();
+            /** @var array<string, mixed> $data */
+            $data = Cache::remember($cacheKey, 3600, function () use ($ip) {
+                $baseUrl = rtrim((string) config('sentinel-log.geo_provider_url', 'https://ipwho.is'), '/');
+
+                return Http::get("{$baseUrl}/{$ip}")->json();
             });
 
-            if ($data['status'] === 'success') {
+            if ($data['success'] === true) {
                 return [
-                    'country' => $data['country'] ?? 'Unknown',
-                    'city' => $data['city'] ?? 'Unknown',
-                    'lat' => $data['lat'] ?? 0,
-                    'lon' => $data['lon'] ?? 0,
-                    'ip' => $data['query'] ?? $ip,
+                    'country' => $data['country']  ?? 'Unknown',
+                    'city'    => $data['city']      ?? 'Unknown',
+                    'lat'     => $data['latitude']  ?? 0,
+                    'lon'     => $data['longitude'] ?? 0,
+                    'ip'      => $data['ip']        ?? $ip,
                 ];
             }
         } catch (Exception) {
@@ -55,10 +56,10 @@ class GeolocationService
 
         return [
             'country' => 'Unknown',
-            'city' => 'Unknown',
-            'lat' => 0,
-            'lon' => 0,
-            'ip' => $ip,
+            'city'    => 'Unknown',
+            'lat'     => 0,
+            'lon'     => 0,
+            'ip'      => $ip,
         ];
     }
 }
