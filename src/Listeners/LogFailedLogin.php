@@ -35,19 +35,21 @@ class LogFailedLogin
             return;
         }
 
-        $this->bruteForceService->checkGeoFence();
-        $this->bruteForceService->checkBruteForce();
-
+        // Record the attempt BEFORE running checks — checkGeoFence() and
+        // checkBruteForce() can abort(), so any create() after them is never reached.
         $log = AuthenticationLog::create([
-            'authenticatable_id' => $event->user ? $event->user->getKey() : null,
-            'authenticatable_type' => $event->user ? get_class($event->user) : null,
-            'event_name' => 'failed',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'device_info' => $this->fingerprintService->generate(),
-            'location' => $this->geoService->getLocation(request()->ip()),
-            'is_successful' => false,
+            'authenticatable_id'   => $event->user?->getKey(),
+            'authenticatable_type' => $event->user !== null ? get_class($event->user) : null,
+            'event_name'           => 'failed',
+            'ip_address'           => request()->ip(),
+            'user_agent'           => request()->userAgent(),
+            'device_info'          => $this->fingerprintService->generate(),
+            'location'             => $this->geoService->getLocation(request()->ip()),
+            'is_successful'        => false,
         ]);
+
+        $this->bruteForceService->checkGeoFence($event->user);
+        $this->bruteForceService->checkBruteForce();
 
         if ($event->user instanceof NotifiableWithFailedAttempt) {
             $event->user->notifyFailedAttempt($log);

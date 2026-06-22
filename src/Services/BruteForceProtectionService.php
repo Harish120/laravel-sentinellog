@@ -6,6 +6,7 @@ namespace Harryes\SentinelLog\Services;
 
 use Harryes\SentinelLog\Models\AuthenticationLog;
 use Harryes\SentinelLog\Models\BlockedIp;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -86,8 +87,10 @@ class BruteForceProtectionService
 
     /**
      * Check geo-fencing rules.
+     * Pass the authenticated user when available so the audit log entry
+     * can be correlated to a specific account.
      */
-    public function checkGeoFence(): void
+    public function checkGeoFence(?Authenticatable $user = null): void
     {
         if (! config('sentinel-log.geo_fencing.enabled', false)) {
             return;
@@ -99,15 +102,17 @@ class BruteForceProtectionService
         }
 
         $location = $this->geoService->getLocation($this->request->ip());
-        $country = $location['country'] ?? null;
+        $country  = $location['country'] ?? null;
 
         if ($country && ! in_array($country, $allowedCountries, true)) {
             AuthenticationLog::create([
-                'event_name' => 'geo_fence_blocked',
-                'ip_address' => $this->request->ip(),
-                'user_agent' => $this->request->userAgent(),
-                'location' => $location,
-                'is_successful' => false,
+                'authenticatable_id'   => $user?->getKey(),
+                'authenticatable_type' => $user !== null ? get_class($user) : null,
+                'event_name'           => 'geo_fence_blocked',
+                'ip_address'           => $this->request->ip(),
+                'user_agent'           => $this->request->userAgent(),
+                'location'             => $location,
+                'is_successful'        => false,
             ]);
             abort(403, 'Login not allowed from your location.');
         }

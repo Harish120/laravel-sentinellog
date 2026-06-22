@@ -45,7 +45,7 @@ class LogSsoLogin
             return; // Exit if not SSO, no token, or already logged in
         }
 
-        $this->bruteForceService->checkGeoFence();
+        $this->bruteForceService->checkGeoFence(); // user not yet resolved at this point
         $user = $this->ssoService->validateToken(request('sso_token'), config('sentinel-log.sso.client_id', 'default_client'));
         if (! $user) {
             abort(401, 'Invalid SSO token.');
