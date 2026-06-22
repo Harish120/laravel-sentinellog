@@ -43,14 +43,15 @@ class SentinelLogServiceProvider extends ServiceProvider
 
         if (config('sentinel-log.location_verification.enabled', true)) {
             Route::group(['middleware' => ['web'], 'prefix' => 'sentinel-log/location'], function () {
-                Route::get('verify/{token}', [LocationVerificationController::class, 'verify'])
+                // GET shows confirmation pages — prevents email scanners from auto-actioning
+                Route::get('verify/{token}', [LocationVerificationController::class, 'verifyConfirm'])
                     ->name('sentinel-log.location.verify');
-
-                // GET shows a confirmation page — prevents email scanners from auto-denying sessions
                 Route::get('deny/{token}', [LocationVerificationController::class, 'denyConfirm'])
                     ->name('sentinel-log.location.deny');
 
-                // POST performs the actual denial after the user confirms
+                // POST routes perform the actual actions after user confirms
+                Route::post('verify/{token}', [LocationVerificationController::class, 'verify'])
+                    ->name('sentinel-log.location.verify.confirm');
                 Route::post('deny/{token}', [LocationVerificationController::class, 'deny'])
                     ->name('sentinel-log.location.deny.confirm');
             });

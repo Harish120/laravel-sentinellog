@@ -113,6 +113,7 @@ class BruteForceProtectionService
                 'user_agent'           => $this->request->userAgent(),
                 'location'             => $location,
                 'is_successful'        => false,
+                'event_at'             => now(),
             ]);
             abort(403, 'Login not allowed from your location.');
         }

@@ -46,6 +46,7 @@ class LogFailedLogin
             'device_info'          => $this->fingerprintService->generate(),
             'location'             => $this->geoService->getLocation(request()->ip()),
             'is_successful'        => false,
+            'event_at'             => now(),
         ]);
 
         $this->bruteForceService->checkGeoFence($event->user);

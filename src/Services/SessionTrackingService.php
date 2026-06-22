@@ -9,6 +9,7 @@ use Harryes\SentinelLog\Models\SentinelSession;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SessionTrackingService
 {
@@ -37,39 +38,40 @@ class SessionTrackingService
             return null;
         }
 
-        $sessionId = session()->getId();
-
-        // Check active sessions for the user
+        $sessionId   = session()->getId();
         $maxSessions = config('sentinel-log.sessions.max_active', 5);
-        $activeSessions = SentinelSession::where('authenticatable_id', $authenticatable->getKey())
-            ->where('authenticatable_type', get_class($authenticatable))
-            ->count();
+        $fingerprint = $this->fingerprintService->generate();
+        $location    = $this->geoService->getLocation($this->request->ip());
 
-        // Exclude current session from count if it exists
-        $currentSession = SentinelSession::where('session_id', $sessionId)->first();
-        if ($currentSession) {
-            $activeSessions = max(0, $activeSessions - 1); // Don't count the session being updated
-        }
+        return DB::transaction(function () use ($authenticatable, $sessionId, $maxSessions, $fingerprint, $location) {
+            // Lock rows for this user to prevent concurrent logins bypassing the limit
+            $activeSessions = SentinelSession::where('authenticatable_id', $authenticatable->getKey())
+                ->where('authenticatable_type', get_class($authenticatable))
+                ->lockForUpdate()
+                ->count();
 
-        if ($activeSessions >= $maxSessions) {
-            throw new Exception('Maximum active sessions exceeded');
-        }
+            $currentExists = SentinelSession::where('session_id', $sessionId)->exists();
+            if ($currentExists) {
+                $activeSessions = max(0, $activeSessions - 1);
+            }
 
-        // Create or update session
-        $session = SentinelSession::updateOrCreate(
-            ['session_id' => $sessionId],
-            [
-                'authenticatable_id' => $authenticatable->getKey(),
-                'authenticatable_type' => get_class($authenticatable),
-                'ip_address' => $this->request->ip(),
-                'user_agent' => $this->request->userAgent(),
-                'device_info' => $this->fingerprintService->generate(),
-                'location' => $this->geoService->getLocation($this->request->ip()),
-                'last_activity' => now(),
-            ]
-        );
+            if ($activeSessions >= $maxSessions) {
+                throw new Exception('Maximum active sessions exceeded');
+            }
 
-        return $session;
+            return SentinelSession::updateOrCreate(
+                ['session_id' => $sessionId],
+                [
+                    'authenticatable_id'   => $authenticatable->getKey(),
+                    'authenticatable_type' => get_class($authenticatable),
+                    'ip_address'           => $this->request->ip(),
+                    'user_agent'           => $this->request->userAgent(),
+                    'device_info'          => $fingerprint,
+                    'location'             => $location,
+                    'last_activity'        => now(),
+                ]
+            );
+        });
     }
 
     /**
