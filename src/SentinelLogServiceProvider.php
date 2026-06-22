@@ -29,6 +29,8 @@ class SentinelLogServiceProvider extends ServiceProvider
     {
         $this->publishes([__DIR__ . '/../config/sentinel-log.php' => config_path('sentinel-log.php')], 'sentinel-log-config');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'sentinel-log');
+        $this->publishes([__DIR__ . '/../resources/views' => resource_path('views/vendor/sentinel-log')], 'sentinel-log-views');
         Event::listen(Login::class, LogSuccessfulLogin::class);
         Event::listen(Login::class, LogSsoLogin::class);
         Event::listen(Logout::class, LogSuccessfulLogout::class);

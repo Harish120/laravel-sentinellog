@@ -26,6 +26,11 @@ parameters:
         - identifier: trait.unused
           path: src/Traits/NotifiesAuthenticationEvents.php
 
+        # ✅ Package namespaced views (sentinel-log::location.*) — Larastan cannot
+        # resolve vendor view namespaces without the app's view loader being bootstrapped.
+        - identifier: argument.type
+          path: src/Http/Controllers/LocationVerificationController.php
+
     excludePaths:
         - build
 
