@@ -62,9 +62,10 @@ class LogSuccessfulLogin
         try {
             $session = $this->sessionService->track($event->user);
         } catch (Exception $e) {
-            abort(403, $e->getMessage()); // e.g., "Maximum active sessions exceeded"
+            abort(403, $e->getMessage());
         }
 
+        $sessionId = $session?->session_id ?? session()->getId();
         $deviceInfo = $this->fingerprintService->generate();
         $hash = $deviceInfo['hash'] ?? '';
         $location = $this->geoService->getLocation(request()->ip());
@@ -74,7 +75,7 @@ class LogSuccessfulLogin
         $log = AuthenticationLog::create([
             'authenticatable_id' => $event->user->getKey(),
             'authenticatable_type' => get_class($event->user),
-            'session_id' => $session->session_id,
+            'session_id' => $sessionId,
             'event_name' => 'login',
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
@@ -94,12 +95,12 @@ class LogSuccessfulLogin
                 AuthenticationLog::create([
                     'authenticatable_id' => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),
-                    'session_id' => $session->session_id,
+                    'session_id' => $sessionId,
                     'event_name' => '2fa_required',
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
-                    'device_info' => $this->fingerprintService->generate(),
-                    'location' => $this->geoService->getLocation(request()->ip()),
+                    'device_info' => $deviceInfo,
+                    'location' => $location,
                     'is_successful' => false,
                 ]);
             }
@@ -117,25 +118,25 @@ class LogSuccessfulLogin
                     location: $location,
                     deviceInfo: $deviceInfo,
                     userAgent: request()->userAgent() ?? '',
-                    sessionId: $session->session_id,
+                    sessionId: $sessionId,
                 );
                 Notification::send($event->user, new NewLocationLogin($verification));
             }
         }
 
-        if (config('sentinel-log.sessions.enabled', true)) {
+        if ($session !== null) {
             $hijacking = $this->sessionService->detectHijacking($session);
             if ($hijacking) {
                 Notification::send($event->user, new SessionHijackingDetected($hijacking['session'], $hijacking['reason']));
                 AuthenticationLog::create([
                     'authenticatable_id' => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),
-                    'session_id' => $session->session_id,
+                    'session_id' => $sessionId,
                     'event_name' => 'hijacking_detected',
                     'ip_address' => request()->ip(),
                     'user_agent' => request()->userAgent(),
-                    'device_info' => $this->fingerprintService->generate(),
-                    'location' => $this->geoService->getLocation(request()->ip()),
+                    'device_info' => $deviceInfo,
+                    'location' => $location,
                     'is_successful' => false,
                 ]);
             }
