@@ -120,6 +120,13 @@ Edit `config/sentinel-log.php` to customize the package. Key options:
     'brute_force' => ['enabled' => true, 'threshold' => 5, 'window' => 15, 'block_duration' => 24],
 ```
 
+### Geolocation Provider
+```php
+    // Defaults to ipwho.is — free, HTTPS, no API key required.
+    // Override to use your own provider; must return JSON compatible with ipwho.is response format.
+    'geo_provider_url' => 'https://ipwho.is',
+```
+
 ### Geo-Fencing
 ```php
     'geo_fencing' => ['enabled' => false, 'allowed_countries' => ['United States', 'Canada']],
@@ -147,6 +154,7 @@ Add these to `.env`:
     SENTINEL_LOG_ENABLED=true
     SENTINEL_LOG_2FA_ENABLED=true
     SENTINEL_LOG_2FA_SETUP_ROUTE=two-factor.setup
+    SENTINEL_LOG_GEO_PROVIDER_URL=https://ipwho.is
     SENTINEL_LOG_GEO_FENCING_ENABLED=true
     SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES="United States,Canada"
     SENTINEL_LOG_LOCATION_VERIFICATION_ENABLED=true
