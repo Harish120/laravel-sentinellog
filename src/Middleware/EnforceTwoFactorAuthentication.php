@@ -26,7 +26,7 @@ class EnforceTwoFactorAuthentication
         if ($user instanceof TwoFactorAuthenticatable &&
             $this->twoFactorService->isRequired($user) &&
             ! $this->twoFactorService->isSetup($user)) {
-            return redirect()->route('two-factor.setup');
+            return redirect()->route(config('sentinel-log.two_factor.setup_route', 'two-factor.setup'));
         }
 
         return $next($request);
