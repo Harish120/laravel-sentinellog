@@ -7,11 +7,14 @@ namespace Harryes\SentinelLog\Services;
 use Harryes\SentinelLog\Models\AuthenticationLog;
 use Harryes\SentinelLog\Models\LocationVerification;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class LocationVerificationService
 {
+    public function __construct(private SessionTrackingService $sessionTrackingService) {}
+
     /**
      * Determine if the given location is new for this user.
      * "New" means the user has never successfully logged in from this city+country before.
@@ -144,6 +147,10 @@ class LocationVerificationService
                 'event_at'             => now(),
             ]);
 
+            // Clean up the sentinel session record so it no longer counts
+            // against the user's max_active limit or appears in hijacking checks.
+            $this->sessionTrackingService->terminate($record->session_id);
+
             $this->invalidateSession($record->session_id);
 
             return $record;
@@ -167,13 +174,35 @@ class LocationVerificationService
             return;
         }
 
-        // Invalidate database-backed sessions
-        try {
-            DB::table(config('session.table', 'sessions'))
-                ->where('id', $sessionId)
-                ->delete();
-        } catch (\Throwable) {
-            // Session driver may not be database — silently skip
+        $driver = config('session.driver');
+
+        // Database driver
+        if ($driver === 'database') {
+            try {
+                DB::table(config('session.table', 'sessions'))
+                    ->where('id', $sessionId)
+                    ->delete();
+            } catch (\Throwable) {
+                // Table may not exist or driver may differ — silently skip
+            }
+
+            return;
         }
+
+        // Cache-based drivers (redis, memcached, dynamodb, apc)
+        // Laravel stores sessions under the configured session cookie name prefix.
+        if (in_array($driver, ['redis', 'memcached', 'dynamodb', 'apc'], true)) {
+            try {
+                $prefix = config('session.cookie', 'laravel_session');
+                Cache::store(config('session.connection') ?: 'default')
+                    ->forget($prefix . ':' . $sessionId);
+            } catch (\Throwable) {
+                // Driver or connection unavailable — silently skip
+            }
+        }
+
+        // File-based sessions cannot be invalidated remotely without filesystem
+        // access scoped to the session storage path. Customers using the file
+        // driver should implement a session denylist in their own middleware.
     }
 }
