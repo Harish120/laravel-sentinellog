@@ -81,7 +81,7 @@ class LogSuccessfulLogin
 
         // Geo-fence check must run BEFORE recording the login — otherwise a blocked
         // user gets a is_successful = true audit entry before the abort fires.
-        $this->bruteForceService->checkGeoFence();
+        $this->bruteForceService->checkGeoFence($event->user);
 
         $log = AuthenticationLog::create([
             'authenticatable_id' => $event->user->getKey(),
