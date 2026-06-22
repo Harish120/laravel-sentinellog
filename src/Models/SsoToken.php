@@ -49,6 +49,6 @@ class SsoToken extends Model
      */
     public function isValid(): bool
     {
-        return $this->expires_at->isFuture();
+        return $this->expires_at !== null && $this->expires_at->isFuture();
     }
 }
