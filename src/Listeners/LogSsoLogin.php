@@ -11,6 +11,8 @@ use Harryes\SentinelLog\Services\GeolocationService;
 use Harryes\SentinelLog\Services\SessionTrackingService;
 use Harryes\SentinelLog\Services\SsoAuthenticationService;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class LogSsoLogin
 {
@@ -50,7 +52,15 @@ class LogSsoLogin
             return;
         }
 
-        $this->bruteForceService->checkGeoFence(); // user not yet resolved at this point
+        // Geo-fence runs before user is resolved. Auth::login() already completed so
+        // we must logout before re-throwing to prevent auth bypass on next request.
+        try {
+            $this->bruteForceService->checkGeoFence();
+        } catch (HttpException $e) {
+            Auth::logout();
+            throw $e;
+        }
+
         $user = $this->ssoService->validateToken(request()->post('sso_token'), config('sentinel-log.sso.client_id', 'default_client'));
 
         if (! $user) {
@@ -63,6 +73,7 @@ class LogSsoLogin
         try {
             $session = $this->sessionService->track($user);
         } catch (\Exception $e) {
+            Auth::logout();
             abort(403, $e->getMessage());
         }
 

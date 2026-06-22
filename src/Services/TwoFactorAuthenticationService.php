@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Harryes\SentinelLog\Services;
 
 use Harryes\SentinelLog\Contracts\TwoFactorAuthenticatable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use ParagonIE\ConstantTime\Base32;
 
@@ -40,11 +41,24 @@ class TwoFactorAuthenticationService
      */
     public function verifyCode(string $secret, string $code, int $window = 1): bool
     {
-        $timestamp = (int) floor(time() / 30); // Cast to int
+        $timestamp  = (int) floor(time() / 30);
+        $secretHash = hash('sha256', $secret);
 
         for ($i = -$window; $i <= $window; $i++) {
-            $expected = $this->generateCode($secret, $timestamp + $i);
+            $step     = $timestamp + $i;
+            $expected = $this->generateCode($secret, $step);
+
             if (hash_equals($expected, $code)) {
+                // RFC 6238 §5.2: reject replayed codes within the same step window.
+                $replayKey = "sentinel_totp_used_{$secretHash}_{$step}";
+
+                if (Cache::has($replayKey)) {
+                    return false;
+                }
+
+                // Mark this step as consumed for the duration of the window
+                Cache::put($replayKey, true, now()->addSeconds(($window * 2 + 1) * 30));
+
                 return true;
             }
         }
