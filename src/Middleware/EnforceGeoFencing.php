@@ -20,7 +20,7 @@ class EnforceGeoFencing
     public function handle(Request $request, Closure $next): mixed
     {
         if (config('sentinel-log.geo_fencing.enabled', false)) {
-            $this->bruteForceService->checkGeoFence();
+            $this->bruteForceService->checkGeoFence($request->user());
         }
 
         return $next($request);
