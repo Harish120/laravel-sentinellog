@@ -54,11 +54,11 @@ class NewLocationLogin extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'event' => 'new_location_login',
-            'ip_address' => $this->verification->ip_address,
-            'location' => $this->verification->location,
-            'token' => $this->verification->token,
-            'expires_at' => $this->verification->expires_at->toDateTimeString(),
+            'event'           => 'new_location_login',
+            'verification_id' => $this->verification->id,
+            'ip_address'      => $this->verification->ip_address,
+            'location'        => $this->verification->location,
+            'expires_at'      => $this->verification->expires_at->toDateTimeString(),
         ];
     }
 }
