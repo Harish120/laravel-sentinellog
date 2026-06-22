@@ -17,6 +17,7 @@ use Harryes\SentinelLog\Services\LocationVerificationService;
 use Harryes\SentinelLog\Services\SessionTrackingService;
 use Harryes\SentinelLog\Services\TwoFactorAuthenticationService;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 
 class LogSuccessfulLogin
@@ -62,6 +63,10 @@ class LogSuccessfulLogin
         try {
             $session = $this->sessionService->track($event->user);
         } catch (Exception $e) {
+            // Auth::login() already completed before this listener fired — the user
+            // is authenticated in the session. Log them out before aborting so the
+            // 403 actually prevents access on the next request.
+            Auth::logout();
             abort(403, $e->getMessage());
         }
 
