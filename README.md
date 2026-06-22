@@ -265,7 +265,9 @@ Attempts are automatically rate-limited, and IPs are blocked after exceeding the
 When a user logs in from a city/country they have never used before, SentinelLog automatically sends them a `NewLocationLogin` notification with two action links:
 
 - **Yes, this was me** — marks the location as verified and logs a `location_verified` event.
-- **No, deny this login** — marks the login as denied, logs a `location_denied` event, and immediately invalidates the session.
+- **No, deny this login** — opens a confirmation page showing the location and IP details. The user must click a confirm button which submits a `POST` request to revoke the session, logging a `location_denied` event.
+
+> **Why a confirmation step for denial?** Email security scanners (Outlook Safe Links, Apple Mail, Gmail) automatically follow every link in an email on delivery. Without a confirmation page, these scanners would revoke the user's session before they even read the email.
 
 The links expire after `token_ttl` minutes (default 30). No application code changes are required — the check runs inside the `LogSuccessfulLogin` listener on every login.
 
