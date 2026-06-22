@@ -52,23 +52,26 @@ class LogSsoLogin
         }
 
         // Log SSO event manually without re-triggering Auth::login()
-        $session = $this->sessionService->track($user);
-        $log = AuthenticationLog::create([
-            'authenticatable_id' => $user->getKey(),
+        try {
+            $session = $this->sessionService->track($user);
+        } catch (\Exception $e) {
+            abort(403, $e->getMessage());
+        }
+
+        $sessionId = $session !== null ? $session->session_id : session()->getId();
+
+        AuthenticationLog::create([
+            'authenticatable_id'   => $user->getKey(),
             'authenticatable_type' => get_class($user),
-            'session_id' => $session->session_id,
-            'event_name' => 'sso_login',
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'device_info' => $this->fingerprintService->generate(),
-            'location' => $this->geoService->getLocation(request()->ip()),
-            'is_successful' => true,
+            'session_id'           => $sessionId,
+            'event_name'           => 'sso_login',
+            'ip_address'           => request()->ip(),
+            'user_agent'           => request()->userAgent(),
+            'device_info'          => $this->fingerprintService->generate(),
+            'location'             => $this->geoService->getLocation(request()->ip()),
+            'is_successful'        => true,
         ]);
 
         $this->bruteForceService->clearAttempts(request()->ip());
-
-        if ($user->isNewDevice($log->device_info['hash'] ?? '')) {
-            $user->notifyNewDevice($log);
-        }
     }
 }

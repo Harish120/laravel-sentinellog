@@ -79,6 +79,10 @@ class LogSuccessfulLogin
         $isNewLocation = config('sentinel-log.location_verification.enabled', true)
             && $this->locationVerificationService->isNewLocation($event->user, $location);
 
+        // Geo-fence check must run BEFORE recording the login — otherwise a blocked
+        // user gets a is_successful = true audit entry before the abort fires.
+        $this->bruteForceService->checkGeoFence();
+
         $log = AuthenticationLog::create([
             'authenticatable_id' => $event->user->getKey(),
             'authenticatable_type' => get_class($event->user),
@@ -91,7 +95,6 @@ class LogSuccessfulLogin
             'is_successful' => true,
         ]);
 
-        $this->bruteForceService->checkGeoFence();
         $this->bruteForceService->clearAttempts(request()->ip());
 
         $user = $event->user;
