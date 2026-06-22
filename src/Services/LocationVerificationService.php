@@ -190,12 +190,13 @@ class LocationVerificationService
         }
 
         // Cache-based drivers (redis, memcached, dynamodb, apc)
-        // Laravel stores sessions under the configured session cookie name prefix.
+        // Laravel's CacheBasedSessionHandler stores sessions under the bare session ID
+        // with no prefix. The correct store is identified by session.store, not session.connection
+        // (that key is the database connection name used only by the database driver).
         if (in_array($driver, ['redis', 'memcached', 'dynamodb', 'apc'], true)) {
             try {
-                $prefix = config('session.cookie', 'laravel_session');
-                Cache::store(config('session.connection') ?: 'default')
-                    ->forget($prefix . ':' . $sessionId);
+                $store = config('session.store') ?: $driver;
+                Cache::store($store)->forget($sessionId);
             } catch (\Throwable) {
                 // Driver or connection unavailable — silently skip
             }

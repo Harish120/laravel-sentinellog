@@ -43,7 +43,7 @@ trait NotifiesAuthenticationEvents
         if ($recentFailures >= $threshold) {
             // Send at most once per window to prevent notification spam on
             // repeated attempts above the threshold.
-            $cooldownKey = 'sentinel_failed_notif_' . $this->getKey();
+            $cooldownKey = 'sentinel_failed_notif_' . get_class($this) . '_' . $this->getKey();
             if (! Cache::has($cooldownKey)) {
                 Notification::send($this, new FailedLoginAttempt($log, $recentFailures));
                 Cache::put($cooldownKey, true, now()->addMinutes($window));
