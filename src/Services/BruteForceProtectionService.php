@@ -69,11 +69,16 @@ class BruteForceProtectionService
         Cache::put($cacheKey, $attempts, now()->addMinutes($window));
 
         if ($attempts >= $threshold) {
-            BlockedIp::create([
-                'ip_address' => $ip,
-                'expires_at' => now()->addHours(config('sentinel-log.brute_force.block_duration', 24)),
-                'reason' => 'Excessive failed login attempts',
-            ]);
+            // updateOrCreate handles the case where an expired block record already
+            // exists for this IP — create() would throw a unique constraint violation.
+            BlockedIp::updateOrCreate(
+                ['ip_address' => $ip],
+                [
+                    'blocked_at' => now(),
+                    'expires_at' => now()->addHours(config('sentinel-log.brute_force.block_duration', 24)),
+                    'reason'     => 'Excessive failed login attempts',
+                ]
+            );
             Cache::forget($cacheKey);
             abort(403, 'Too many login attempts. Your IP is now blocked.');
         }
@@ -109,11 +114,26 @@ class BruteForceProtectionService
     }
 
     /**
-     * Clear brute force attempts after successful login.
+     * Reset the rolling failed-attempt counter for an IP after a successful login.
+     * The BlockedIp record is intentionally left intact — a block was imposed for
+     * suspicious activity and should expire on its own schedule, not be erased
+     * because the attacker eventually guessed the correct password.
      */
     public function clearAttempts(string $ip): void
     {
         Cache::forget("sentinel_brute_force_{$ip}");
-        BlockedIp::where('ip_address', $ip)->delete();
+    }
+
+    /**
+     * Delete expired block records.
+     * Wire this into your scheduler to keep the sentinel_blocked_ips table clean:
+     *
+     *   $schedule->call(fn () => app(BruteForceProtectionService::class)->pruneExpired())->daily();
+     */
+    public function pruneExpired(): int
+    {
+        return BlockedIp::whereNotNull('expires_at')
+            ->where('expires_at', '<', now())
+            ->delete();
     }
 }
