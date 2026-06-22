@@ -11,7 +11,6 @@ use Harryes\SentinelLog\Services\GeolocationService;
 use Harryes\SentinelLog\Services\SessionTrackingService;
 use Harryes\SentinelLog\Services\SsoAuthenticationService;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Support\Facades\Auth;
 
 class LogSsoLogin
 {
@@ -41,9 +40,12 @@ class LogSsoLogin
 
     public function handle(Login $event): void
     {
-        if (! config('sentinel-log.sso.enabled', false) || ! request()->has('sso_token') || Auth::check()) {
-            return; // Exit if not SSO, no token, or already logged in
+        if (! config('sentinel-log.sso.enabled', false) || ! request()->has('sso_token')) {
+            return;
         }
+
+        // Note: Auth::check() cannot be used here — the Login event fires after
+        // Auth::login() has already set the user in the guard, so it is always true.
 
         $this->bruteForceService->checkGeoFence(); // user not yet resolved at this point
         $user = $this->ssoService->validateToken(request('sso_token'), config('sentinel-log.sso.client_id', 'default_client'));
@@ -70,6 +72,7 @@ class LogSsoLogin
             'device_info'          => $this->fingerprintService->generate(),
             'location'             => $this->geoService->getLocation(request()->ip()),
             'is_successful'        => true,
+            'event_at'             => now(),
         ]);
 
         $this->bruteForceService->clearAttempts(request()->ip());

@@ -8,6 +8,7 @@ use Closure;
 use Harryes\SentinelLog\Contracts\TwoFactorAuthenticatable;
 use Harryes\SentinelLog\Services\TwoFactorAuthenticationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class EnforceTwoFactorAuthentication
@@ -26,7 +27,15 @@ class EnforceTwoFactorAuthentication
         if ($user instanceof TwoFactorAuthenticatable &&
             $this->twoFactorService->isRequired($user) &&
             ! $this->twoFactorService->isSetup($user)) {
-            return redirect()->route(config('sentinel-log.two_factor.setup_route', 'two-factor.setup'));
+            $setupRoute = config('sentinel-log.two_factor.setup_route', 'two-factor.setup');
+
+            abort_unless(
+                Route::has($setupRoute),
+                500,
+                "SentinelLog: 2FA setup route \"{$setupRoute}\" is not defined. Add it to your application or update sentinel-log.two_factor.setup_route."
+            );
+
+            return redirect()->route($setupRoute);
         }
 
         return $next($request);

@@ -38,6 +38,7 @@ class LogSuccessfulLogout
             'user_agent'           => request()->userAgent(),
             'location'             => $this->geoService->getLocation(request()->ip()),
             'is_successful'        => true,
+            'event_at'             => now(),
         ]);
 
         $this->sessionService->terminate($sessionId);

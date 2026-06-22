@@ -96,8 +96,9 @@ class LogSuccessfulLogin
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
             'device_info' => $deviceInfo,
-            'location' => $location,
+            'location'    => $location,
             'is_successful' => true,
+            'event_at'    => now(),
         ]);
 
         $this->bruteForceService->clearAttempts(request()->ip());
@@ -105,18 +106,18 @@ class LogSuccessfulLogin
         $user = $event->user;
 
         if ($user instanceof TwoFactorAuthenticatable) {
-            $twoFactorEnabled = (bool) $user->getTwoFactorSecret();
-            if ($twoFactorEnabled && ! session()->has('2fa_verified')) {
+            if ($this->twoFactorService->isSetup($user) && ! session()->has('2fa_verified')) {
                 AuthenticationLog::create([
                     'authenticatable_id' => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),
                     'session_id' => $sessionId,
-                    'event_name' => '2fa_required',
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                    'device_info' => $deviceInfo,
-                    'location' => $location,
+                    'event_name'    => '2fa_required',
+                    'ip_address'    => request()->ip(),
+                    'user_agent'    => request()->userAgent(),
+                    'device_info'   => $deviceInfo,
+                    'location'      => $location,
                     'is_successful' => false,
+                    'event_at'      => now(),
                 ]);
             }
         }
@@ -145,12 +146,13 @@ class LogSuccessfulLogin
                     'authenticatable_id' => $event->user->getKey(),
                     'authenticatable_type' => get_class($event->user),
                     'session_id' => $sessionId,
-                    'event_name' => 'hijacking_detected',
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
-                    'device_info' => $deviceInfo,
-                    'location' => $location,
+                    'event_name'    => 'hijacking_detected',
+                    'ip_address'    => request()->ip(),
+                    'user_agent'    => request()->userAgent(),
+                    'device_info'   => $deviceInfo,
+                    'location'      => $location,
                     'is_successful' => false,
+                    'event_at'      => now(),
                 ]);
             }
         }
