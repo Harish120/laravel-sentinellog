@@ -34,6 +34,7 @@ return [
     'two_factor' => [
         'enabled' => env('SENTINEL_LOG_2FA_ENABLED', false),
         'middleware' => 'sentinel-log.2fa',
+        'setup_route' => env('SENTINEL_LOG_2FA_SETUP_ROUTE', 'two-factor.setup'),
     ],
     'sessions' => [
         'enabled' => env('SENTINEL_LOG_SESSIONS_ENABLED', true),
