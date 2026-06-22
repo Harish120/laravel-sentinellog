@@ -74,6 +74,17 @@ class LocationVerificationService
     }
 
     /**
+     * Find a pending verification record by token without actioning it.
+     * Used by the deny confirmation page to show location details before the user confirms.
+     */
+    public function findPending(string $token): ?LocationVerification
+    {
+        $record = LocationVerification::where('token', $token)->first();
+
+        return ($record && $record->isPending()) ? $record : null;
+    }
+
+    /**
      * Mark a verification token as verified.
      * Returns null if the token is invalid, expired, or already actioned.
      */
