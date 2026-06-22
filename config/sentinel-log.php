@@ -54,7 +54,7 @@ return [
     'geo_provider_url' => env('SENTINEL_LOG_GEO_PROVIDER_URL', 'https://ipwho.is'),
     'geo_fencing' => [
         'enabled' => env('SENTINEL_LOG_GEO_FENCING_ENABLED', false),
-        'allowed_countries' => explode(',', env('SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES', 'United States,Canada')),
+        'allowed_countries' => array_values(array_filter(explode(',', env('SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES', 'United States,Canada')))),
     ],
     'sso' => [
         'enabled' => env('SENTINEL_LOG_SSO_ENABLED', false),
