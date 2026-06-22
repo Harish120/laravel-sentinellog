@@ -32,9 +32,17 @@ class SsoAuthenticationService
 
         if ($ssoToken && $ssoToken->isValid()) {
             $user = $ssoToken->authenticatable;
-            $ssoToken->delete(); // One-time use
 
-            return $user; // Return user without logging in here
+            // Verify the related user still exists before consuming the token.
+            // A deleted user account would return null here; deleting the token
+            // first would burn it silently with no audit trail.
+            if ($user === null) {
+                return null;
+            }
+
+            $ssoToken->delete(); // One-time use — consumed only after user is confirmed
+
+            return $user;
         }
 
         return null;

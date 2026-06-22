@@ -70,6 +70,14 @@ class LogSsoLogin
             return;
         }
 
+        // Ensure the SSO token's user matches the user who just authenticated.
+        // A mismatched token means someone appended another user's SSO token to a
+        // normal login request — skip to prevent audit log pollution and wrong user tracking.
+        if ($user->getKey() !== $event->user->getKey() ||
+            get_class($user) !== get_class($event->user)) {
+            return;
+        }
+
         try {
             $session = $this->sessionService->track($user);
         } catch (\Exception $e) {
