@@ -27,11 +27,14 @@ class SessionTrackingService
 
     /**
      * Track or update a session, enforcing max session limit.
+     * Returns null when session tracking is disabled.
+     *
+     * @throws Exception when the max active session limit is reached
      */
-    public function track(Authenticatable $authenticatable): SentinelSession
+    public function track(Authenticatable $authenticatable): ?SentinelSession
     {
         if (! config('sentinel-log.sessions.enabled', true)) {
-            throw new Exception('Session tracking is disabled');
+            return null;
         }
 
         $sessionId = session()->getId();
