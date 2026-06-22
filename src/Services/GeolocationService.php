@@ -43,7 +43,7 @@ class GeolocationService
                 $data    = Http::get("{$baseUrl}/{$ip}")->json();
 
                 if (is_array($data) && ($data['success'] ?? false) === true) {
-                    Cache::put($cacheKey, $data, 3600);
+                    Cache::put($cacheKey, $data, now()->addHour());
                 } else {
                     $data = null;
                 }

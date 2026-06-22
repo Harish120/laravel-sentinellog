@@ -8,6 +8,7 @@ use Harryes\SentinelLog\Models\AuthenticationLog;
 use Harryes\SentinelLog\Notifications\FailedLoginAttempt;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 
 trait NotifiesAuthenticationEvents
@@ -40,7 +41,13 @@ trait NotifiesAuthenticationEvents
             ->count();
 
         if ($recentFailures >= $threshold) {
-            Notification::send($this, new FailedLoginAttempt($log, $recentFailures));
+            // Send at most once per window to prevent notification spam on
+            // repeated attempts above the threshold.
+            $cooldownKey = 'sentinel_failed_notif_' . $this->getKey();
+            if (! Cache::has($cooldownKey)) {
+                Notification::send($this, new FailedLoginAttempt($log, $recentFailures));
+                Cache::put($cooldownKey, true, now()->addMinutes($window));
+            }
         }
     }
 }

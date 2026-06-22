@@ -49,11 +49,13 @@ class LogFailedLogin
             'event_at'             => now(),
         ]);
 
-        $this->bruteForceService->checkGeoFence($event->user);
-        $this->bruteForceService->checkBruteForce();
-
+        // Notify BEFORE checks — checkGeoFence/checkBruteForce can abort(), which
+        // would skip this notification for the threshold-crossing attempt.
         if ($event->user instanceof NotifiableWithFailedAttempt) {
             $event->user->notifyFailedAttempt($log);
         }
+
+        $this->bruteForceService->checkGeoFence($event->user);
+        $this->bruteForceService->checkBruteForce();
     }
 }
