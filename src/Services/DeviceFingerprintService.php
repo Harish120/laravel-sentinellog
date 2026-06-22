@@ -120,6 +120,6 @@ class DeviceFingerprintService
             $this->request->header('accept-encoding'),
         ]);
 
-        return md5(implode('|', $data));
+        return hash('sha256', implode('|', $data));
     }
 }
