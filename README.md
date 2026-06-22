@@ -95,10 +95,18 @@ Edit `config/sentinel-log.php` to customize the package. Key options:
 
 ### Notifications
 ```php
-    'new_device' => ['enabled' => true, 'channels' => ['mail']],
-    'failed_attempt' => ['enabled' => true, 'threshold' => 3, 'window' => 60],
+    'new_device'        => ['enabled' => true, 'channels' => ['mail'], 'threshold' => 1],
+    'failed_attempt'    => ['enabled' => true, 'channels' => ['mail'], 'threshold' => 3, 'window' => 60],
     'session_hijacking' => ['enabled' => true, 'channels' => ['mail']],
 ```
+
+To also persist notifications to the database, add `'database'` to the channels array for any notification. Your `users` table must have the `notifications` table from `php artisan notifications:table`.
+
+```php
+    'new_device' => ['enabled' => true, 'channels' => ['mail', 'database']],
+```
+
+> **Note:** The `NewLocationLogin` database payload stores `verification_id` (the record's primary key) rather than the raw token, so the verify/deny URLs cannot be reconstructed from the notifications table.
 
 ### Two-Factor Authentication (2FA)
 ```php
