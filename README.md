@@ -96,7 +96,8 @@ Edit `config/sentinel-log.php` to customize the package. Key options:
 ### Notifications
 ```php
     'new_device' => ['enabled' => true, 'channels' => ['mail']],
-    'failed_attempt' => ['threshold' => 5, 'window' => 15],
+    'failed_attempt' => ['enabled' => true, 'threshold' => 3, 'window' => 60],
+    'session_hijacking' => ['enabled' => true, 'channels' => ['mail']],
 ```
 
 ### Two-Factor Authentication (2FA)
@@ -228,6 +229,28 @@ Handle SSO login in the client app:
 ```php
     Route::get('/sso/login', fn() => 'Logged in via SSO')->middleware('auth');
 ```
+
+### Device Recognition
+
+SentinelLog uses a **persistent cookie token** as the primary device identity signal — the same approach used by GitHub, Google, and Stripe.
+
+**How it works:**
+- On first login from a browser, a cryptographically random 64-character token is generated and stored in a long-lived `sentinel_device_token` cookie (2 years, HttpOnly, SameSite=Lax)
+- On every subsequent login, the cookie is read and looked up in the login history
+- If the token is not found → new device → `NewDeviceLogin` notification sent
+- If the token is found → recognised device → no notification
+
+**Why a cookie and not a header hash?**  
+Header-based hashes that include the IP address break for mobile users (WiFi ↔ cellular), dynamic IPs, and VPN users. The cookie token is stable across all of these. A secondary header hash (User-Agent + Accept-Language + Accept-Encoding) is still stored in `device_info` alongside the token for forensic reference.
+
+**To enable new device notifications**, set in config:
+```php
+'notifications' => [
+    'new_device' => ['enabled' => true, 'channels' => ['mail']],
+],
+```
+
+> **Upgrading from a previous version?** Existing login records have no `token` field in `device_info`. Each user will receive a single "new device" email on their first login after the upgrade — after which the cookie is set and recognition is stable.
 
 ### Session Management
 View active sessions:
