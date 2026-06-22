@@ -33,6 +33,10 @@ class NewLocationLogin extends Notification
         $denyUrl = route('sentinel-log.location.deny', $this->verification->token);
         $expiresIn = config('sentinel-log.location_verification.token_ttl', 30);
 
+        // Laravel's MailMessage only renders the LAST ->action() call in the default
+        // template. Using two ->action() calls silently drops the first button.
+        // The deny action is the security-critical CTA and gets the primary button.
+        // The verify link is presented as inline text so both are always visible.
         return (new MailMessage)
             ->subject('New Login Location Detected')
             ->greeting('Security Alert')
@@ -40,11 +44,10 @@ class NewLocationLogin extends Notification
             ->line("**Location:** {$city}, {$country}")
             ->line("**IP Address:** {$this->verification->ip_address}")
             ->line("**Time:** " . $this->verification->created_at->format('D, d M Y H:i:s T'))
-            ->line('If this was you, no action is needed — click confirm below to trust this location.')
-            ->action('Yes, this was me', $verifyUrl)
+            ->line("If this was you, [click here to confirm the login]({$verifyUrl}).")
             ->line('If you did **not** log in, click the button below to immediately revoke this session.')
             ->action('No, deny this login', $denyUrl)
-            ->line("This link expires in {$expiresIn} minutes.")
+            ->line("Both links expire in {$expiresIn} minutes.")
             ->salutation('The Security Team');
     }
 

@@ -16,7 +16,11 @@ class TwoFactorAuthenticationService
      */
     public function generateSecret(): string
     {
-        return Base32::encodeUpper(Str::random(16));
+        // RFC 6238 recommends 160 bits of entropy for the shared secret.
+        // random_bytes(20) gives 160 bits of cryptographically secure randomness
+        // with a uniform byte distribution — Str::random() produces only alphanumeric
+        // characters (~95 bits, skewed byte distribution) and is not suitable here.
+        return Base32::encodeUpper(random_bytes(20));
     }
 
     /**

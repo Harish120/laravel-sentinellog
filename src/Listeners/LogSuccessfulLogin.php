@@ -66,9 +66,18 @@ class LogSuccessfulLogin
         try {
             $session = $this->sessionService->track($event->user);
         } catch (Exception $e) {
-            // Auth::login() already completed before this listener fired — the user
-            // is authenticated in the session. Log them out before aborting so the
-            // 403 actually prevents access on the next request.
+            // Auth::login() already completed — log the real reason before calling
+            // Auth::logout() so the audit trail shows session_limit_exceeded, not
+            // a misleading voluntary 'logout' entry from the Logout event.
+            AuthenticationLog::create([
+                'authenticatable_id'   => $event->user->getKey(),
+                'authenticatable_type' => get_class($event->user),
+                'event_name'           => 'session_limit_exceeded',
+                'ip_address'           => request()->ip(),
+                'user_agent'           => request()->userAgent(),
+                'is_successful'        => false,
+                'event_at'             => now(),
+            ]);
             Auth::logout();
             abort(403, $e->getMessage());
         }

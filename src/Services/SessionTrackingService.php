@@ -116,9 +116,13 @@ class SessionTrackingService
                 (float) ($currentLocation['lon'] ?? 0) !== (float) ($otherLocation['lon'] ?? 0) ||
                 ($currentSession->device_info['hash'] ?? '') !== ($session->device_info['hash'] ?? '')
             ) {
+                // Return the CURRENT (new) session as the suspicious one — it arrived
+                // from a different location/device than the existing trusted sessions.
+                // Returning the old session caused the notification email to describe
+                // the trusted session as suspicious, which confused users.
                 return [
-                    'session' => $session,
-                    'reason' => 'Location or device mismatch detected',
+                    'session' => $currentSession,
+                    'reason'  => 'Location or device mismatch detected',
                 ];
             }
         }
