@@ -34,14 +34,22 @@ class GeolocationService
         try {
             $cacheKey = "sentinel_log_geo_{$ip}";
 
-            /** @var array<string, mixed> $data */
-            $data = Cache::remember($cacheKey, 3600, function () use ($ip) {
+            // Only cache successful responses — a null or error response must not
+            // be stored, otherwise every lookup for this IP returns null for an hour.
+            $data = Cache::get($cacheKey);
+
+            if ($data === null) {
                 $baseUrl = rtrim((string) config('sentinel-log.geo_provider_url', 'https://ipwho.is'), '/');
+                $data    = Http::get("{$baseUrl}/{$ip}")->json();
 
-                return Http::get("{$baseUrl}/{$ip}")->json();
-            });
+                if (is_array($data) && ($data['success'] ?? false) === true) {
+                    Cache::put($cacheKey, $data, 3600);
+                } else {
+                    $data = null;
+                }
+            }
 
-            if ($data['success'] === true) {
+            if (is_array($data) && ($data['success'] ?? false) === true) {
                 return [
                     'country' => $data['country']  ?? 'Unknown',
                     'city'    => $data['city']      ?? 'Unknown',
