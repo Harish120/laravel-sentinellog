@@ -27,6 +27,13 @@ class LogSuccessfulLogout
             return;
         }
 
+        // Guard against null — Auth::logout() called on an already-logged-out guard
+        // (which can happen in error-path listeners) fires a second Logout event
+        // with $user = null.
+        if ($event->user === null) {
+            return;
+        }
+
         $sessionId = session()->getId();
 
         AuthenticationLog::create([

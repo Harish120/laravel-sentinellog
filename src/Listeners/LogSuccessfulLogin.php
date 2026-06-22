@@ -58,6 +58,8 @@ class LogSuccessfulLogin
         }
 
         if ($this->bruteForceService->isIpBlocked(request()->ip())) {
+            Auth::logout();
+            $this->sessionService->terminate(session()->getId());
             abort(403, 'Your IP has been blocked due to suspicious activity.');
         }
 
