@@ -65,12 +65,19 @@ class LogSuccessfulLogin
             abort(403, $e->getMessage());
         }
 
-        $sessionId = $session?->session_id ?? session()->getId();
+        $sessionId = $session !== null ? $session->session_id : session()->getId();
         $deviceInfo = $this->fingerprintService->generate();
         $hash = $deviceInfo['hash'] ?? '';
         $location = $this->geoService->getLocation(request()->ip());
-        $isNewDevice = config('sentinel-log.notifications.new_device.enabled', false) &&
-            $this->fingerprintService->isNewDevice($event->user, $hash);
+
+        // Assess against historical data BEFORE recording this login.
+        // Once the row is inserted the same queries would always find the current
+        // login and produce wrong results (new-device / new-location would never fire).
+        $isNewDevice = config('sentinel-log.notifications.new_device.enabled', false)
+            && $this->fingerprintService->isNewDevice($event->user, $hash);
+
+        $isNewLocation = config('sentinel-log.location_verification.enabled', true)
+            && $this->locationVerificationService->isNewLocation($event->user, $location);
 
         $log = AuthenticationLog::create([
             'authenticatable_id' => $event->user->getKey(),
@@ -110,18 +117,16 @@ class LogSuccessfulLogin
             Notification::send($event->user, new NewDeviceLogin($log));
         }
 
-        if (config('sentinel-log.location_verification.enabled', true)) {
-            if ($this->locationVerificationService->isNewLocation($event->user, $location)) {
-                $verification = $this->locationVerificationService->create(
-                    user: $event->user,
-                    ip: request()->ip(),
-                    location: $location,
-                    deviceInfo: $deviceInfo,
-                    userAgent: request()->userAgent() ?? '',
-                    sessionId: $sessionId,
-                );
-                Notification::send($event->user, new NewLocationLogin($verification));
-            }
+        if ($isNewLocation) {
+            $verification = $this->locationVerificationService->create(
+                user: $event->user,
+                ip: request()->ip(),
+                location: $location,
+                deviceInfo: $deviceInfo,
+                userAgent: request()->userAgent() ?? '',
+                sessionId: $sessionId,
+            );
+            Notification::send($event->user, new NewLocationLogin($verification));
         }
 
         if ($session !== null) {

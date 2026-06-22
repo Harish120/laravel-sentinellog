@@ -27,10 +27,18 @@ class LocationVerificationService
             return false;
         }
 
-        return ! AuthenticationLog::where('authenticatable_id', $user->getKey())
+        $priorLogins = AuthenticationLog::where('authenticatable_id', $user->getKey())
             ->where('authenticatable_type', get_class($user))
             ->where('event_name', 'login')
-            ->where('is_successful', true)
+            ->where('is_successful', true);
+
+        // No login history at all — this is the user's first login, not a suspicious
+        // location change. There is no baseline to compare against.
+        if (! (clone $priorLogins)->exists()) {
+            return false;
+        }
+
+        return ! (clone $priorLogins)
             ->where('location->city', $city)
             ->where('location->country', $country)
             ->exists();
