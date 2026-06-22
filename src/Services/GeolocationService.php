@@ -5,19 +5,11 @@ declare(strict_types=1);
 namespace Harryes\SentinelLog\Services;
 
 use Exception;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class GeolocationService
 {
-    protected Client $client;
-
-    public function __construct()
-    {
-        $this->client = new Client(['base_uri' => 'http://ip-api.com/json/']);
-    }
-
     /**
      * Get geolocation data for an IP address.
      *
