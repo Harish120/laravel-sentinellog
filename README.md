@@ -78,9 +78,14 @@ Visit `http://localhost:8000` to explore the demo.
         use NotifiesAuthenticationEvents;
     
         protected $fillable = ['two_factor_secret', 'two_factor_enabled_at'];
-        protected $casts = ['two_factor_enabled_at' => 'datetime'];
+        protected $casts = [
+            'two_factor_enabled_at' => 'datetime',
+            'two_factor_secret'     => 'encrypted', // encrypts the TOTP secret at rest
+        ];
     }
 ```
+
+> **Security:** The `encrypted` cast uses your application's `APP_KEY` to encrypt the 2FA secret in the database. A database dump will not expose raw TOTP secrets. If you have existing unencrypted secrets, re-generate them after adding the cast — existing codes will stop working until the secret is re-saved through the encryption layer.
 
 ## Configuration
 
@@ -112,10 +117,14 @@ To also persist notifications to the database, add `'database'` to the channels 
 ```php
     'two_factor' => [
         'enabled'     => false,
+        'required'    => false, // when true, all TwoFactorAuthenticatable users must complete 2FA setup
         'middleware'  => 'sentinel-log.2fa',
-        'setup_route' => 'two-factor.setup', // named route users are redirected to when 2FA is not yet configured
+        'setup_route' => 'two-factor.setup',
     ],
 ```
+
+- `enabled` — registers the `sentinel-log.2fa` middleware alias so you can apply it to routes
+- `required` — when `true`, the middleware redirects **any** user who has not set up 2FA to the setup route; when `false` (default), only users who have already set up 2FA are prompted to verify
 
 > **Important:** The package does not register a `two-factor.setup` route — you must define it in your own application. If your route has a different name, set `setup_route` to match or use the `SENTINEL_LOG_2FA_SETUP_ROUTE` env variable.
 
@@ -162,6 +171,7 @@ Add these to `.env`:
 ```env
     SENTINEL_LOG_ENABLED=true
     SENTINEL_LOG_2FA_ENABLED=true
+    SENTINEL_LOG_2FA_REQUIRED=false
     SENTINEL_LOG_2FA_SETUP_ROUTE=two-factor.setup
     SENTINEL_LOG_GEO_PROVIDER_URL=https://ipwho.is
     SENTINEL_LOG_GEO_FENCING_ENABLED=true
