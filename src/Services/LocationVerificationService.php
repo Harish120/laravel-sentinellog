@@ -90,28 +90,30 @@ class LocationVerificationService
      */
     public function verify(string $token): ?LocationVerification
     {
-        $record = LocationVerification::where('token', $token)->first();
+        return DB::transaction(function () use ($token) {
+            $record = LocationVerification::where('token', $token)->lockForUpdate()->first();
 
-        if (! $record || ! $record->isPending()) {
-            return null;
-        }
+            if (! $record || ! $record->isPending()) {
+                return null;
+            }
 
-        $record->update(['verified_at' => now()]);
+            $record->update(['verified_at' => now()]);
 
-        AuthenticationLog::create([
-            'authenticatable_id' => $record->authenticatable_id,
-            'authenticatable_type' => $record->authenticatable_type,
-            'session_id' => $record->session_id,
-            'event_name' => 'location_verified',
-            'ip_address' => $record->ip_address,
-            'user_agent' => $record->user_agent,
-            'device_info' => $record->device_info,
-            'location' => $record->location,
-            'is_successful' => true,
-            'event_at' => now(),
-        ]);
+            AuthenticationLog::create([
+                'authenticatable_id'   => $record->authenticatable_id,
+                'authenticatable_type' => $record->authenticatable_type,
+                'session_id'           => $record->session_id,
+                'event_name'           => 'location_verified',
+                'ip_address'           => $record->ip_address,
+                'user_agent'           => $record->user_agent,
+                'device_info'          => $record->device_info,
+                'location'             => $record->location,
+                'is_successful'        => true,
+                'event_at'             => now(),
+            ]);
 
-        return $record;
+            return $record;
+        });
     }
 
     /**
@@ -120,30 +122,32 @@ class LocationVerificationService
      */
     public function deny(string $token): ?LocationVerification
     {
-        $record = LocationVerification::where('token', $token)->first();
+        return DB::transaction(function () use ($token) {
+            $record = LocationVerification::where('token', $token)->lockForUpdate()->first();
 
-        if (! $record || ! $record->isPending()) {
-            return null;
-        }
+            if (! $record || ! $record->isPending()) {
+                return null;
+            }
 
-        $record->update(['denied_at' => now()]);
+            $record->update(['denied_at' => now()]);
 
-        AuthenticationLog::create([
-            'authenticatable_id' => $record->authenticatable_id,
-            'authenticatable_type' => $record->authenticatable_type,
-            'session_id' => $record->session_id,
-            'event_name' => 'location_denied',
-            'ip_address' => $record->ip_address,
-            'user_agent' => $record->user_agent,
-            'device_info' => $record->device_info,
-            'location' => $record->location,
-            'is_successful' => false,
-            'event_at' => now(),
-        ]);
+            AuthenticationLog::create([
+                'authenticatable_id'   => $record->authenticatable_id,
+                'authenticatable_type' => $record->authenticatable_type,
+                'session_id'           => $record->session_id,
+                'event_name'           => 'location_denied',
+                'ip_address'           => $record->ip_address,
+                'user_agent'           => $record->user_agent,
+                'device_info'          => $record->device_info,
+                'location'             => $record->location,
+                'is_successful'        => false,
+                'event_at'             => now(),
+            ]);
 
-        $this->invalidateSession($record->session_id);
+            $this->invalidateSession($record->session_id);
 
-        return $record;
+            return $record;
+        });
     }
 
     /**

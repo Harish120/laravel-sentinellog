@@ -109,9 +109,11 @@ class SessionTrackingService
             $currentLocation = $currentSession->location ?? [];
             $otherLocation = $session->location ?? [];
 
+            // Cast lat/lon to float before comparison — JSON deserialization can
+            // produce int 0 vs float 0.0 for "unknown" coordinates, causing false positives.
             if (
-                ($currentLocation['lat'] ?? 0) !== ($otherLocation['lat'] ?? 0) ||
-                ($currentLocation['lon'] ?? 0) !== ($otherLocation['lon'] ?? 0) ||
+                (float) ($currentLocation['lat'] ?? 0) !== (float) ($otherLocation['lat'] ?? 0) ||
+                (float) ($currentLocation['lon'] ?? 0) !== (float) ($otherLocation['lon'] ?? 0) ||
                 ($currentSession->device_info['hash'] ?? '') !== ($session->device_info['hash'] ?? '')
             ) {
                 return [

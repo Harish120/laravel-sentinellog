@@ -11,7 +11,6 @@ use Harryes\SentinelLog\Services\GeolocationService;
 use Harryes\SentinelLog\Services\SessionTrackingService;
 use Harryes\SentinelLog\Services\SsoAuthenticationService;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Support\Facades\Auth;
 
 class LogSsoLogin
 {
@@ -45,23 +44,25 @@ class LogSsoLogin
             return;
         }
 
-        // Note: Auth::check() cannot be used here — the Login event fires after
-        // Auth::login() has already set the user in the guard, so it is always true.
-
-        $this->bruteForceService->checkGeoFence(); // user not yet resolved at this point
-        $user = $this->ssoService->validateToken(request('sso_token'), config('sentinel-log.sso.client_id', 'default_client'));
-        if (! $user) {
-            // Auth::login() already completed — log out before aborting so the
-            // attacker cannot reuse the authenticated session on the next request.
-            Auth::logout();
-            abort(401, 'Invalid SSO token.');
+        // Reject tokens submitted via GET query string — they appear in server logs,
+        // browser history and referrer headers. SSO tokens must travel via POST body.
+        if (request()->query('sso_token') !== null) {
+            return;
         }
 
-        // Log SSO event manually without re-triggering Auth::login()
+        $this->bruteForceService->checkGeoFence(); // user not yet resolved at this point
+        $user = $this->ssoService->validateToken(request()->post('sso_token'), config('sentinel-log.sso.client_id', 'default_client'));
+
+        if (! $user) {
+            // Token is invalid or not an SSO login — silently skip.
+            // Do NOT abort or logout: the user may have logged in via normal credentials
+            // with an unrelated sso_token parameter present in the request.
+            return;
+        }
+
         try {
             $session = $this->sessionService->track($user);
         } catch (\Exception $e) {
-            Auth::logout();
             abort(403, $e->getMessage());
         }
 

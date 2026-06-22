@@ -19,6 +19,7 @@ use Harryes\SentinelLog\Services\TwoFactorAuthenticationService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class LogSuccessfulLogin
 {
@@ -86,7 +87,15 @@ class LogSuccessfulLogin
 
         // Geo-fence check must run BEFORE recording the login — otherwise a blocked
         // user gets a is_successful = true audit entry before the abort fires.
-        $this->bruteForceService->checkGeoFence($event->user);
+        // Auth::login() already completed so we must also logout + clean up the
+        // sentinel session before re-throwing to prevent auth bypass on next request.
+        try {
+            $this->bruteForceService->checkGeoFence($event->user);
+        } catch (HttpException $e) {
+            Auth::logout();
+            $this->sessionService->terminate($sessionId);
+            throw $e;
+        }
 
         $log = AuthenticationLog::create([
             'authenticatable_id' => $event->user->getKey(),

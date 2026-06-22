@@ -32,10 +32,11 @@ return [
         ],
     ],
     'two_factor' => [
-        'enabled'     => env('SENTINEL_LOG_2FA_ENABLED', false),
-        'required'    => env('SENTINEL_LOG_2FA_REQUIRED', false), // force all TwoFactorAuthenticatable users to set up 2FA
-        'middleware'  => 'sentinel-log.2fa',
-        'setup_route' => env('SENTINEL_LOG_2FA_SETUP_ROUTE', 'two-factor.setup'),
+        'enabled'      => env('SENTINEL_LOG_2FA_ENABLED', false),
+        'required'     => env('SENTINEL_LOG_2FA_REQUIRED', false), // force all TwoFactorAuthenticatable users to set up 2FA
+        'middleware'   => 'sentinel-log.2fa',
+        'setup_route'  => env('SENTINEL_LOG_2FA_SETUP_ROUTE', 'two-factor.setup'),
+        'verify_route' => env('SENTINEL_LOG_2FA_VERIFY_ROUTE', 'two-factor.verify'), // route for TOTP code challenge
     ],
     'sessions' => [
         'enabled' => env('SENTINEL_LOG_SESSIONS_ENABLED', true),
