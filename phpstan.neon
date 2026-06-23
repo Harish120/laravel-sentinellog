@@ -26,10 +26,29 @@ parameters:
         - identifier: trait.unused
           path: src/Traits/NotifiesAuthenticationEvents.php
 
+        # ✅ MorphMany generic in trait — Larastan cannot resolve the static type
+        # for polymorphic relationships declared in traits analyzed in test context
+        - identifier: missingType.generics
+          path: src/Traits/NotifiesAuthenticationEvents.php
+
         # ✅ Package namespaced views (sentinel-log::location.*) — Larastan cannot
         # resolve vendor view namespaces without the app's view loader being bootstrapped.
         - identifier: argument.type
           path: src/Http/Controllers/LocationVerificationController.php
+
+        # ✅ Pest feature tests — $this in closures is bound to TestCase at runtime
+        # but PHPStan infers it as Pest\PendingCalls\TestCall, so custom TestCase
+        # methods appear undefined. Global helper functions are used instead.
+        - identifier: method.notFound
+          path: tests/Feature
+
+        # ✅ Eloquent dynamic properties on test fixture User model
+        - identifier: property.notFound
+          path: tests/Fixtures/User.php
+
+        # ✅ Pest expect()->and() template type — known Pest/PHPStan interop gap
+        - identifier: argument.templateType
+          path: tests/Feature
 
     excludePaths:
         - build
