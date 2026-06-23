@@ -24,6 +24,7 @@
     "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
     "illuminate/auth": "^10.0|^11.0|^12.0|^13.0",
     "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+    "illuminate/http": "^10.0|^11.0|^12.0|^13.0",
     "illuminate/notifications": "^10.0|^11.0|^12.0|^13.0",
     "paragonie/constant_time_encoding": "^2.0||^3.0"
   },
