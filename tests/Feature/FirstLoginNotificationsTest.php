@@ -17,7 +17,7 @@ beforeEach(function () {
 });
 
 it('does not send new-device notification on first ever login', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     Auth::login($user);
 
@@ -25,7 +25,7 @@ it('does not send new-device notification on first ever login', function () {
 });
 
 it('does not send new-location email on first ever login', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     Auth::login($user);
 
@@ -33,7 +33,7 @@ it('does not send new-location email on first ever login', function () {
 });
 
 it('sends new-device notification when user has prior login history and a new token appears', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     // Seed a prior login with a known device token so there is login history
     AuthenticationLog::create([
@@ -53,7 +53,7 @@ it('sends new-device notification when user has prior login history and a new to
 });
 
 it('sends new-location email when user has prior login history and a new location appears', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     // Seed a prior login from a known location
     AuthenticationLog::create([

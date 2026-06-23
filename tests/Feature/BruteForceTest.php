@@ -19,7 +19,7 @@ beforeEach(function () {
 });
 
 it('records a failed login attempt', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     event(new Failed('web', $user, ['email' => $user->email, 'password' => 'wrong']));
 
@@ -42,7 +42,7 @@ it('blocks IP after threshold is reached', function () {
 
 it('clears the attempt counter after successful login', function () {
     $service = app(BruteForceProtectionService::class);
-    $user    = $this->makeUser();
+    $user    = makeUser();
 
     // Build up some attempts
     $service->checkBruteForce(); // attempt 1
@@ -62,7 +62,7 @@ it('expired block does not prevent login', function () {
         'reason'     => 'expired',
     ]);
 
-    $user = $this->makeUser();
+    $user = makeUser();
     Auth::login($user);
 
     expect(Auth::check())->toBeTrue();

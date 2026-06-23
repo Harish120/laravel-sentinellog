@@ -7,7 +7,7 @@ use Illuminate\Auth\Events\Failed;
 use Illuminate\Support\Facades\Auth;
 
 it('records event_at on every login log entry', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
     Auth::login($user);
 
     $log = AuthenticationLog::where('event_name', 'login')->first();
@@ -17,7 +17,7 @@ it('records event_at on every login log entry', function () {
 });
 
 it('records the correct authenticatable on login', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
     Auth::login($user);
 
     $log = AuthenticationLog::where('event_name', 'login')->first();
@@ -28,7 +28,7 @@ it('records the correct authenticatable on login', function () {
 });
 
 it('records a failed login with is_successful false', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     event(new Failed('web', $user, ['email' => $user->email, 'password' => 'wrong']));
 
@@ -40,7 +40,7 @@ it('records a failed login with is_successful false', function () {
 });
 
 it('records a logout event', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
     Auth::login($user);
     Auth::logout();
 

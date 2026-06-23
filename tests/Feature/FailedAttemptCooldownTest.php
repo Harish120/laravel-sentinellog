@@ -18,7 +18,7 @@ beforeEach(function () {
 });
 
 it('sends notification when failed attempts reach the threshold', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     // Seed 3 failed attempts within the window
     foreach (range(1, 3) as $i) {
@@ -39,7 +39,7 @@ it('sends notification when failed attempts reach the threshold', function () {
 });
 
 it('does not send notification below the threshold', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     // Only 2 failed attempts — below threshold of 3
     foreach (range(1, 2) as $i) {
@@ -60,7 +60,7 @@ it('does not send notification below the threshold', function () {
 });
 
 it('sends notification only once per window due to cooldown', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     foreach (range(1, 5) as $i) {
         AuthenticationLog::create([

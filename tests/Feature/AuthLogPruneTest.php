@@ -30,7 +30,7 @@ function seedLogs(mixed $user, int $oldCount, int $recentCount): void
 }
 
 it('deletes logs older than the default retention period', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
     seedLogs($user, oldCount: 3, recentCount: 2);
 
     config(['sentinel-log.prune.days' => 30]);
@@ -41,7 +41,7 @@ it('deletes logs older than the default retention period', function () {
 });
 
 it('deletes logs older than a custom retention period', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
     seedLogs($user, oldCount: 3, recentCount: 2);
 
     $deleted = AuthenticationLog::pruneOlderThan(3);
@@ -51,7 +51,7 @@ it('deletes logs older than a custom retention period', function () {
 });
 
 it('does not delete recent logs', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     AuthenticationLog::create([
         'authenticatable_id'   => $user->id,

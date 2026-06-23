@@ -11,7 +11,7 @@ beforeEach(function () {
 });
 
 it('generates and validates a token for the correct user', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $service = app(SsoAuthenticationService::class);
     $token   = $service->generateToken($user, 'test-client');
 
@@ -22,7 +22,7 @@ it('generates and validates a token for the correct user', function () {
 });
 
 it('consumes the token on validation — one-time use', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $service = app(SsoAuthenticationService::class);
     $token   = $service->generateToken($user, 'test-client');
 
@@ -34,7 +34,7 @@ it('consumes the token on validation — one-time use', function () {
 });
 
 it('returns null for an expired token', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
     SsoToken::create([
         'authenticatable_id'   => $user->id,
         'authenticatable_type' => get_class($user),
@@ -55,7 +55,7 @@ it('returns null for an unknown token', function () {
 });
 
 it('returns null for wrong client id', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $service = app(SsoAuthenticationService::class);
     $token   = $service->generateToken($user, 'client-a');
 
@@ -63,7 +63,7 @@ it('returns null for wrong client id', function () {
 });
 
 it('does not consume token when user account is deleted', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $service = app(SsoAuthenticationService::class);
     $token   = $service->generateToken($user, 'test-client');
 

@@ -19,7 +19,7 @@ function makeVerification(mixed $user): LocationVerification
 }
 
 it('verify() returns the record on first call', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $record  = makeVerification($user);
     $service = app(LocationVerificationService::class);
 
@@ -31,7 +31,7 @@ it('verify() returns the record on first call', function () {
 });
 
 it('verify() returns null on second call — idempotent', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $record  = makeVerification($user);
     $service = app(LocationVerificationService::class);
 
@@ -43,7 +43,7 @@ it('verify() returns null on second call — idempotent', function () {
 });
 
 it('deny() returns the record on first call', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $record  = makeVerification($user);
     $service = app(LocationVerificationService::class);
 
@@ -54,7 +54,7 @@ it('deny() returns the record on first call', function () {
 });
 
 it('deny() returns null on second call — idempotent', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $record  = makeVerification($user);
     $service = app(LocationVerificationService::class);
 
@@ -66,7 +66,7 @@ it('deny() returns null on second call — idempotent', function () {
 });
 
 it('cannot verify after already denied', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $record  = makeVerification($user);
     $service = app(LocationVerificationService::class);
 
@@ -77,7 +77,7 @@ it('cannot verify after already denied', function () {
 });
 
 it('returns null for an expired token', function () {
-    $user    = $this->makeUser();
+    $user    = makeUser();
     $record  = LocationVerification::create([
         'authenticatable_type' => get_class($user),
         'authenticatable_id'   => $user->id,
