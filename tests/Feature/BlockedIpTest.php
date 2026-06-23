@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Event;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 it('blocks login and logs out user when IP is blocked', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     BlockedIp::create([
         'ip_address' => '127.0.0.1',
@@ -33,7 +33,7 @@ it('blocks login and logs out user when IP is blocked', function () {
 });
 
 it('allows login when IP block has expired', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     BlockedIp::create([
         'ip_address' => '127.0.0.1',
@@ -49,7 +49,7 @@ it('allows login when IP block has expired', function () {
 });
 
 it('records a login audit log for non-blocked IP', function () {
-    $user = $this->makeUser();
+    $user = makeUser();
 
     Auth::login($user);
 

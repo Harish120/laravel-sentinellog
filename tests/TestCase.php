@@ -41,12 +41,4 @@ abstract class TestCase extends BaseTestCase
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
-    protected function makeUser(array $attributes = []): User
-    {
-        return User::create(array_merge([
-            'name'     => 'Test User',
-            'email'    => 'test@example.com',
-            'password' => bcrypt('password'),
-        ], $attributes));
-    }
 }
