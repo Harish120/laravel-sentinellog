@@ -315,8 +315,13 @@ SentinelLog accumulates records over time. Add these to your scheduler to keep t
 
 ```php
 // routes/console.php (Laravel 11+) or App\Console\Kernel (Laravel 10)
+use Harryes\SentinelLog\Models\AuthenticationLog;
 use Harryes\SentinelLog\Services\BruteForceProtectionService;
 use Harryes\SentinelLog\Services\LocationVerificationService;
+
+Schedule::call(fn () => AuthenticationLog::pruneOlderThan())
+    ->daily()
+    ->name('sentinel-log:prune-auth-logs');
 
 Schedule::call(fn () => app(BruteForceProtectionService::class)->pruneExpired())
     ->daily()
@@ -329,8 +334,11 @@ Schedule::call(fn () => app(LocationVerificationService::class)->pruneExpired())
 
 | Method | What it cleans | Recommended frequency |
 |---|---|---|
+| `AuthenticationLog::pruneOlderThan()` | Auth log entries older than `prune.days` (default 30) | Daily |
 | `BruteForceProtectionService::pruneExpired()` | Expired IP block records from `sentinel_blocked_ips` | Daily |
 | `LocationVerificationService::pruneExpired()` | Expired unactioned location verification tokens | Daily |
+
+You can override the retention period: `AuthenticationLog::pruneOlderThan(90)` keeps 90 days of history.
 
 > **Note on IP blocks:** A blocked IP is considered inactive once its `expires_at` timestamp passes — no record deletion is needed for the block to stop working. `pruneExpired()` is purely a housekeeping concern.
 

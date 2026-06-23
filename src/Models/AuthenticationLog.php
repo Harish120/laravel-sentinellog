@@ -73,6 +73,19 @@ class AuthenticationLog extends Model
     }
 
     /**
+     * Delete records older than the configured retention period.
+     * Wire into your scheduler:
+     *
+     *   $schedule->call(fn () => AuthenticationLog::pruneOlderThan())->daily();
+     */
+    public static function pruneOlderThan(?int $days = null): int
+    {
+        $days = $days ?? (int) config('sentinel-log.prune.days', 30);
+
+        return static::where('event_at', '<', now()->subDays($days))->delete();
+    }
+
+    /**
      * Convert the model instance to an array.
      *
      * @return array<string, mixed>

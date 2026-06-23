@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['authenticatable_type', 'authenticatable_id'], 'location_verifications_auth_idx');
-            $table->index('token');
+            // Note: no explicit index('token') here — unique() above already creates one
         });
     }
 

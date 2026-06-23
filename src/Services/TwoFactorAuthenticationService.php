@@ -6,7 +6,6 @@ namespace Harryes\SentinelLog\Services;
 
 use Harryes\SentinelLog\Contracts\TwoFactorAuthenticatable;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use ParagonIE\ConstantTime\Base32;
 
 class TwoFactorAuthenticationService
