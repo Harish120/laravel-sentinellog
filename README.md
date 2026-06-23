@@ -64,11 +64,13 @@ Visit `http://localhost:8000` to explore the demo.
   php artisan vendor:publish --tag=sentinel-log-config
 ```
 
-2a. *(Optional)* **Publish Views** — to customise the verify/deny confirmation pages:
+2a. *(Optional)* **Publish Views** — only if you want to **customise** the verify/deny confirmation pages:
 ```bash
   php artisan vendor:publish --tag=sentinel-log-views
 ```
-This copies the Blade templates to `resources/views/vendor/sentinel-log/location/`.
+This copies the Blade templates to `resources/views/sentinel-log/location/`.
+
+> **Do not publish unless you intend to customise.** The package serves the confirmation pages automatically via `loadViewsFrom()` — no publishing step is required for them to work. Publishing a copy you never edit will silently shadow future package view updates.
 
 3. **Run Migrations**
 ```bash
