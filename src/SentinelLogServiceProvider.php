@@ -30,18 +30,18 @@ class SentinelLogServiceProvider extends ServiceProvider
         $this->publishes([__DIR__ . '/../config/sentinel-log.php' => config_path('sentinel-log.php')], 'sentinel-log-config');
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'sentinel-log');
-        $this->publishes([__DIR__ . '/../resources/views' => resource_path('views/vendor/sentinel-log')], 'sentinel-log-views');
+        $this->publishes([__DIR__ . '/../resources/views' => resource_path('views/sentinel-log')], 'sentinel-log-views');
         Event::listen(Login::class, LogSsoLogin::class);
         Event::listen(Login::class, LogSuccessfulLogin::class);
         Event::listen(Logout::class, LogSuccessfulLogout::class);
         Event::listen(Failed::class, LogFailedLogin::class);
 
-        if (config('sentinel-log.two_factor.enabled', false)) {
-            Route::aliasMiddleware('sentinel-log.2fa', EnforceTwoFactorAuthentication::class);
-        }
-        if (config('sentinel-log.geo_fencing.enabled', false)) {
-            Route::aliasMiddleware('sentinel-log.geofence', EnforceGeoFencing::class);
-        }
+        // Always register aliases — both middleware self-guard when their feature
+        // is disabled, so registering unconditionally is safe. Conditional registration
+        // caused "Target class does not exist" 500 errors when apps referenced the
+        // alias before enabling the feature in config.
+        Route::aliasMiddleware('sentinel-log.2fa', EnforceTwoFactorAuthentication::class);
+        Route::aliasMiddleware('sentinel-log.geofence', EnforceGeoFencing::class);
 
         if (config('sentinel-log.location_verification.enabled', true)) {
             Route::group(['middleware' => ['web'], 'prefix' => 'sentinel-log/location'], function () {
