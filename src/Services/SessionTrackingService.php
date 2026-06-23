@@ -78,9 +78,9 @@ class SessionTrackingService
      * Remove the sentinel session record for the given session ID on logout.
      * Safe to call when session tracking is disabled — no-ops silently.
      */
-    public function terminate(string $sessionId): void
+    public function terminate(?string $sessionId): void
     {
-        if (! config('sentinel-log.sessions.enabled', true)) {
+        if (! $sessionId || ! config('sentinel-log.sessions.enabled', true)) {
             return;
         }
 
