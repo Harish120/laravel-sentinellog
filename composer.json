@@ -1,6 +1,6 @@
 {
   "name": "harryes/laravel-sentinellog",
-  "description": "A vigilant authentication logging and security package for Laravel 10-13 (PHP 8.2–8.4).",
+  "description": "A vigilant authentication logging and security package for Laravel 10-13 (PHP 8.2–8.5).",
   "type": "laravel-package",
   "license": "MIT",
   "version": "v1.0.0",
@@ -20,7 +20,7 @@
     }
   ],
   "require": {
-    "php": "^8.2|^8.3|^8.4",
+    "php": "^8.2|^8.3|^8.4|^8.5",
     "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
     "illuminate/auth": "^10.0|^11.0|^12.0|^13.0",
     "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
