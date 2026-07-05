@@ -2,7 +2,7 @@
 
 [![Latest Version](https://img.shields.io/packagist/v/harryes/laravel-sentinellog.svg)](https://packagist.org/packages/harryes/laravel-sentinellog)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PHP Version](https://img.shields.io/badge/PHP-8.2%20%7C%208.3%20%7C%208.4-blue)](https://php.net)
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%20%7C%208.3%20%7C%208.4%20%7C%208.5-blue)](https://php.net)
 [![Laravel Version](https://img.shields.io/badge/Laravel-10.x%20%7C%2011.x%20%7C%2012.x%20%7C%2013.x-blue)](https://laravel.com)
 [![Tests](https://img.shields.io/badge/tests-52%20passing-brightgreen)](https://github.com/Harish120/laravel-sentinellog/actions)
 [![Stable](https://img.shields.io/badge/stable-v1.0.0-brightgreen)](https://packagist.org/packages/harryes/laravel-sentinellog)
@@ -51,7 +51,7 @@ Visit `http://localhost:8000` to explore the demo.
 ## Installation
 
 ### Prerequisites
-- PHP 8.2 or higher
+- PHP 8.2, 8.3, 8.4, or 8.5
 - Laravel 10.x, 11.x, 12.x, or 13.x
 - Composer
 
