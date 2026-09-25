@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Harryes\SentinelLog\Notifications;
 
 use Harryes\SentinelLog\Models\LocationVerification;
+use Harryes\SentinelLog\Notifications\Messages\DiscordMessage;
+use Harryes\SentinelLog\Notifications\Messages\SlackMessage;
+use Harryes\SentinelLog\Notifications\Messages\TeamsMessage;
+use Harryes\SentinelLog\Notifications\Messages\TelegramMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -49,6 +53,57 @@ class NewLocationLogin extends Notification
             ->action('No, deny this login', $denyUrl)
             ->line("Both links expire in {$expiresIn} minutes.")
             ->salutation('The Security Team');
+    }
+
+    public function toSlack(object $notifiable): SlackMessage
+    {
+        return (new SlackMessage)->text($this->chatAlertText());
+    }
+
+    public function toTeams(object $notifiable): TeamsMessage
+    {
+        return (new TeamsMessage)->text($this->chatAlertText());
+    }
+
+    public function toTelegram(object $notifiable): TelegramMessage
+    {
+        return (new TelegramMessage)->text($this->chatAlertText());
+    }
+
+    public function toDiscord(object $notifiable): DiscordMessage
+    {
+        $location = $this->verification->location ?? [];
+        $city = $location['city'] ?? 'Unknown';
+        $country = $location['country'] ?? 'Unknown';
+
+        $verifyUrl = route('sentinel-log.location.verify', $this->verification->token);
+        $denyUrl = route('sentinel-log.location.deny', $this->verification->token);
+
+        return (new DiscordMessage)->content(
+            "**New login location detected**\n" .
+            "Location: {$city}, {$country}\n" .
+            "IP: {$this->verification->ip_address}\n" .
+            "Time: " . $this->verification->created_at->format('D, d M Y H:i:s T') . "\n" .
+            "This was me: {$verifyUrl}\n" .
+            "Not me, revoke this session: {$denyUrl}"
+        );
+    }
+
+    protected function chatAlertText(): string
+    {
+        $location = $this->verification->location ?? [];
+        $city = $location['city'] ?? 'Unknown';
+        $country = $location['country'] ?? 'Unknown';
+
+        $verifyUrl = route('sentinel-log.location.verify', $this->verification->token);
+        $denyUrl = route('sentinel-log.location.deny', $this->verification->token);
+
+        return "New login location detected.\n" .
+            "Location: {$city}, {$country}\n" .
+            "IP: {$this->verification->ip_address}\n" .
+            "Time: " . $this->verification->created_at->format('D, d M Y H:i:s T') . "\n" .
+            "This was me: {$verifyUrl}\n" .
+            "Not me, revoke this session: {$denyUrl}";
     }
 
     /**

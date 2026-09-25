@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Harryes\SentinelLog\Notifications;
 
 use Harryes\SentinelLog\Models\SentinelSession;
+use Harryes\SentinelLog\Notifications\Messages\DiscordMessage;
+use Harryes\SentinelLog\Notifications\Messages\SlackMessage;
+use Harryes\SentinelLog\Notifications\Messages\TeamsMessage;
+use Harryes\SentinelLog\Notifications\Messages\TelegramMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -42,6 +46,49 @@ class SessionHijackingDetected extends Notification
             ->line("**Device:** {$browser}")
             ->line("**Last Activity:** {$this->session->last_activity}")
             ->action('Review Sessions', url('/'));
+    }
+
+    public function toSlack(object $notifiable): SlackMessage
+    {
+        return (new SlackMessage)->text($this->chatAlertText());
+    }
+
+    public function toTeams(object $notifiable): TeamsMessage
+    {
+        return (new TeamsMessage)->text($this->chatAlertText());
+    }
+
+    public function toTelegram(object $notifiable): TelegramMessage
+    {
+        return (new TelegramMessage)->text($this->chatAlertText());
+    }
+
+    public function toDiscord(object $notifiable): DiscordMessage
+    {
+        $location = $this->session->location ?? [];
+        $city     = $location['city'] ?? 'Unknown';
+        $country  = $location['country'] ?? 'Unknown';
+
+        return (new DiscordMessage)->content(
+            "**Possible session hijacking detected**\n" .
+            "Reason: {$this->reason}\n" .
+            "IP: {$this->session->ip_address}\n" .
+            "Location: {$city}, {$country}\n" .
+            "Last activity: {$this->session->last_activity}"
+        );
+    }
+
+    protected function chatAlertText(): string
+    {
+        $location = $this->session->location ?? [];
+        $city     = $location['city'] ?? 'Unknown';
+        $country  = $location['country'] ?? 'Unknown';
+
+        return "Possible session hijacking detected.\n" .
+            "Reason: {$this->reason}\n" .
+            "IP: {$this->session->ip_address}\n" .
+            "Location: {$city}, {$country}\n" .
+            "Last activity: {$this->session->last_activity}";
     }
 
     /**

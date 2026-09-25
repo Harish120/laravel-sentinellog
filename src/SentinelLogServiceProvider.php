@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Harryes\SentinelLog;
 
+use Harryes\SentinelLog\Channels\CustomWebhookChannel;
+use Harryes\SentinelLog\Channels\DiscordWebhookChannel;
+use Harryes\SentinelLog\Channels\SlackWebhookChannel;
+use Harryes\SentinelLog\Channels\TeamsWebhookChannel;
+use Harryes\SentinelLog\Channels\TelegramWebhookChannel;
 use Harryes\SentinelLog\Http\Controllers\LocationVerificationController;
 use Harryes\SentinelLog\Listeners\LogFailedLogin;
 use Harryes\SentinelLog\Listeners\LogSsoLogin;
@@ -15,6 +20,7 @@ use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
@@ -42,6 +48,16 @@ class SentinelLogServiceProvider extends ServiceProvider
         // alias before enabling the feature in config.
         Route::aliasMiddleware('sentinel-log.2fa', EnforceTwoFactorAuthentication::class);
         Route::aliasMiddleware('sentinel-log.geofence', EnforceGeoFencing::class);
+
+        // These are all optional notification channels. Registering the drivers
+        // here has no effect on its own, a notification only reaches one if a
+        // user adds its name to that notification's channels in config, so
+        // mail-only installs are completely unaffected.
+        Notification::extend('slack', fn () => new SlackWebhookChannel());
+        Notification::extend('discord', fn () => new DiscordWebhookChannel());
+        Notification::extend('teams', fn () => new TeamsWebhookChannel());
+        Notification::extend('telegram', fn () => new TelegramWebhookChannel());
+        Notification::extend('webhook', fn () => new CustomWebhookChannel());
 
         if (config('sentinel-log.location_verification.enabled', true)) {
             Route::group(['middleware' => ['web'], 'prefix' => 'sentinel-log/location'], function () {

@@ -124,6 +124,53 @@ To also persist notifications to the database, add `'database'` to the channels 
 
 > **Note:** The `NewLocationLogin` database payload stores `verification_id` (the record's primary key) rather than the raw token, so the verify/deny URLs cannot be reconstructed from the notifications table.
 
+### Optional Chat Channels (Slack, Discord, Microsoft Teams, Telegram, custom webhook)
+
+Mail is the default and it keeps working with zero setup. If your team also watches a Slack, Discord, or Teams channel, or you run alerts through a Telegram bot, you can send the same alerts there too. None of this needs an extra composer package, they all just take a plain HTTP POST, so turning any of them on will not add new dependencies to your app.
+
+Add the channel name to whichever notification's `channels` array you want, and fill in its settings:
+
+```php
+    'notifications' => [
+        'new_device'        => ['enabled' => true, 'channels' => ['mail', 'slack']],
+        'failed_attempt'    => ['enabled' => true, 'channels' => ['mail', 'slack', 'discord']],
+        'session_hijacking' => ['enabled' => true, 'channels' => ['mail', 'teams', 'telegram']],
+    ],
+
+    'channels' => [
+        'slack' => [
+            'webhook_url' => env('SENTINEL_LOG_SLACK_WEBHOOK_URL'),
+        ],
+        'discord' => [
+            'webhook_url' => env('SENTINEL_LOG_DISCORD_WEBHOOK_URL'),
+        ],
+        'teams' => [
+            'webhook_url' => env('SENTINEL_LOG_TEAMS_WEBHOOK_URL'),
+        ],
+        'telegram' => [
+            'bot_token' => env('SENTINEL_LOG_TELEGRAM_BOT_TOKEN'),
+            'chat_id' => env('SENTINEL_LOG_TELEGRAM_CHAT_ID'),
+        ],
+        'webhook' => [
+            'webhook_url' => env('SENTINEL_LOG_WEBHOOK_URL'),
+        ],
+    ],
+```
+
+How to set each one up:
+
+- **Slack**: create an [incoming webhook](https://api.slack.com/messaging/webhooks) for the channel you want alerts in.
+- **Discord**: open the channel's settings, go to Integrations, and create a webhook there.
+- **Microsoft Teams**: add an Incoming Webhook connector to the channel and copy its URL.
+- **Telegram**: message [@BotFather](https://t.me/BotFather) to create a bot and get a token, message your bot once, then visit `https://api.telegram.org/bot<token>/getUpdates` to read back the chat id.
+- **Custom webhook** (`'webhook'`): a catch-all for anything else, PagerDuty, Zapier, n8n, or your own endpoint. It posts the notification's normal `toArray()` payload, the same data the `database` channel stores, so you get structured JSON rather than a chat message.
+
+If a channel is turned on but not fully configured (no webhook URL, or no bot token), the package logs a warning and moves on. It will never throw an error or stop a login from working. The same goes for a webhook that is down or times out, so a broken Slack or Teams integration can never take your login flow down with it.
+
+You can also point different users at different destinations by adding `routeNotificationForSlack()`, `routeNotificationForDiscord()`, `routeNotificationForTeams()`, or `routeNotificationForTelegram()` to your notifiable model, the same way you would for `routeNotificationForMail()`. For Telegram this should return the chat id, for the others a webhook URL. That value takes priority over the config setting.
+
+Want a channel that is not here yet? Open an issue or a PR, the channel classes in `src/Channels` are built so a new one is just a small subclass.
+
 ### Two-Factor Authentication (2FA)
 ```php
     'two_factor' => [
@@ -188,6 +235,12 @@ Add these to `.env`:
     SENTINEL_LOG_GEO_FENCING_ENABLED=true
     SENTINEL_LOG_GEO_FENCING_ALLOWED_COUNTRIES="United States,Canada"
     SENTINEL_LOG_LOCATION_VERIFICATION_ENABLED=true
+    SENTINEL_LOG_SLACK_WEBHOOK_URL=
+    SENTINEL_LOG_DISCORD_WEBHOOK_URL=
+    SENTINEL_LOG_TEAMS_WEBHOOK_URL=
+    SENTINEL_LOG_TELEGRAM_BOT_TOKEN=
+    SENTINEL_LOG_TELEGRAM_CHAT_ID=
+    SENTINEL_LOG_WEBHOOK_URL=
 ```
 
 ## Usage Examples

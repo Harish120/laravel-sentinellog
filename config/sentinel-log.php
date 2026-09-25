@@ -71,4 +71,39 @@ return [
         'redirect_after_verify' => '/',
         'redirect_after_deny' => '/',
     ],
+
+    // Optional chat channels. Mail keeps working with zero setup, these only turn
+    // on when you add their name to a notification's channels array above and
+    // fill in the settings below. No extra composer packages needed, all of them
+    // just take a plain HTTP POST.
+    'channels' => [
+        'slack' => [
+            'webhook_url' => env('SENTINEL_LOG_SLACK_WEBHOOK_URL'),
+            'timeout' => env('SENTINEL_LOG_SLACK_TIMEOUT', 3),
+        ],
+        'discord' => [
+            'webhook_url' => env('SENTINEL_LOG_DISCORD_WEBHOOK_URL'),
+            'timeout' => env('SENTINEL_LOG_DISCORD_TIMEOUT', 3),
+        ],
+        'teams' => [
+            'webhook_url' => env('SENTINEL_LOG_TEAMS_WEBHOOK_URL'),
+            'timeout' => env('SENTINEL_LOG_TEAMS_TIMEOUT', 3),
+        ],
+        // Telegram needs a bot token and the chat id to post into instead of a
+        // single webhook URL. Message @BotFather to create a bot and get a token,
+        // then message your bot once and check https://api.telegram.org/bot<token>/getUpdates
+        // to find the chat id.
+        'telegram' => [
+            'bot_token' => env('SENTINEL_LOG_TELEGRAM_BOT_TOKEN'),
+            'chat_id' => env('SENTINEL_LOG_TELEGRAM_CHAT_ID'),
+            'timeout' => env('SENTINEL_LOG_TELEGRAM_TIMEOUT', 3),
+        ],
+        // A catch-all for anything else, PagerDuty, Zapier, n8n, or your own
+        // endpoint. Add 'webhook' to a notification's channels array and it will
+        // POST that notification's normal database payload (toArray()) here.
+        'webhook' => [
+            'webhook_url' => env('SENTINEL_LOG_WEBHOOK_URL'),
+            'timeout' => env('SENTINEL_LOG_WEBHOOK_TIMEOUT', 3),
+        ],
+    ],
 ];
