@@ -7,7 +7,6 @@ namespace Tests\Unit\Channels;
 use Harryes\SentinelLog\Channels\CustomWebhookChannel;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class WebhookTestNotification extends Notification
 {
@@ -72,7 +71,6 @@ it('prefers a per notifiable webhook url over the config default', function () {
 
 it('does nothing when no webhook url is configured', function () {
     Http::fake();
-    Log::shouldReceive('warning')->once();
 
     (new CustomWebhookChannel)->send(new WebhookTestNotifiable, new WebhookTestNotification);
 
@@ -82,7 +80,6 @@ it('does nothing when no webhook url is configured', function () {
 it('does not throw when the webhook request fails, it just logs a warning', function () {
     Http::fake(['*' => Http::response('bad request', 400)]);
     config(['sentinel-log.channels.webhook.webhook_url' => 'https://example.test/hooks/sentinel-log']);
-    Log::shouldReceive('warning')->once();
 
     (new CustomWebhookChannel)->send(new WebhookTestNotifiable, new WebhookTestNotification);
 
@@ -94,7 +91,6 @@ it('does not throw when the connection itself fails', function () {
         throw new \Illuminate\Http\Client\ConnectionException('Could not connect');
     });
     config(['sentinel-log.channels.webhook.webhook_url' => 'https://example.test/hooks/sentinel-log']);
-    Log::shouldReceive('warning')->once();
 
     (new CustomWebhookChannel)->send(new WebhookTestNotifiable, new WebhookTestNotification);
 

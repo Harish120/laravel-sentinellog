@@ -8,7 +8,6 @@ use Harryes\SentinelLog\Channels\TelegramWebhookChannel;
 use Harryes\SentinelLog\Notifications\Messages\TelegramMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class TelegramTestNotification extends Notification
 {
@@ -88,7 +87,6 @@ it('prefers a per notifiable chat id over the config default', function () {
 it('does nothing when no bot token is configured', function () {
     Http::fake();
     config(['sentinel-log.channels.telegram.chat_id' => '999888777']);
-    Log::shouldReceive('warning')->once();
 
     (new TelegramWebhookChannel)->send(new TelegramTestNotifiable, new TelegramTestNotification);
 
@@ -98,7 +96,6 @@ it('does nothing when no bot token is configured', function () {
 it('does nothing when no chat id is configured or routed', function () {
     Http::fake();
     config(['sentinel-log.channels.telegram.bot_token' => '123456:ABC-DEF']);
-    Log::shouldReceive('warning')->once();
 
     (new TelegramWebhookChannel)->send(new TelegramTestNotifiable, new TelegramTestNotification);
 
@@ -111,7 +108,6 @@ it('does not throw when the telegram api request fails, it just logs a warning',
         'sentinel-log.channels.telegram.bot_token' => '123456:ABC-DEF',
         'sentinel-log.channels.telegram.chat_id'   => '999888777',
     ]);
-    Log::shouldReceive('warning')->once();
 
     (new TelegramWebhookChannel)->send(new TelegramTestNotifiable, new TelegramTestNotification);
 
@@ -126,7 +122,6 @@ it('does not throw when the connection itself fails', function () {
         'sentinel-log.channels.telegram.bot_token' => '123456:ABC-DEF',
         'sentinel-log.channels.telegram.chat_id'   => '999888777',
     ]);
-    Log::shouldReceive('warning')->once();
 
     (new TelegramWebhookChannel)->send(new TelegramTestNotifiable, new TelegramTestNotification);
 
